@@ -1,2 +1,4 @@
 # OOP345-Works
-Farbod Moayeri
+Name: Farbod Moayeri
+Student ID: 134395227
+Student Email: fmoayeri2@myseneca.ca
