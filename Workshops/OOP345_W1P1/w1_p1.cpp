@@ -12,6 +12,7 @@
 	#error "The header guard for 'RideRequest.h' doesn't follow the convention!"
 #endif
 
+using namespace sdds;
 int cout = 0; // won't compile if headers don't follow convention regarding namespaces
 
 
@@ -29,7 +30,8 @@ int cout = 0; // won't compile if headers don't follow convention regarding name
 
 // TODO: write the prototype for the main function
 //         to accept command line arguments
-int main(const int argc, char *argv[])
+
+int main(int argc, char* argv[])
 {
 	int i{};
 
@@ -41,7 +43,8 @@ int main(const int argc, char *argv[])
 	//   3: third argument
 	//   ...
 	// Don't use "magic numbers": https://en.wikipedia.org/wiki/Magic_number_(programming)
-	for (i = 1; i < argc; i++)
+
+	for (i = 0; i < argc; i++)
 	{
 		std::cout << "1: " << argv[i] << '\n';
 	}
