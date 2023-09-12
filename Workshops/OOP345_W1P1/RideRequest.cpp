@@ -55,7 +55,6 @@ namespace sdds {
 			RideRequest local{};
 
 			char discountStatus = 'N';
-			char* description = nullptr;
 			std::string localDesc{};
 
 			istr.get(local.g_name, NAME_LENGTH, ',');
@@ -83,7 +82,7 @@ namespace sdds {
 		return *this;
 	}
 
-	RideRequest& RideRequest::display()
+	const RideRequest& RideRequest::display() const
 	{
 		static int i = 0;
 		i++;

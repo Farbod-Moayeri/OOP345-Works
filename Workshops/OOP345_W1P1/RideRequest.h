@@ -28,11 +28,11 @@ namespace sdds {
 		bool g_isDiscount{ false };
 	public:
 		RideRequest() = default;
-		~RideRequest();
+		virtual ~RideRequest();
 		RideRequest(const RideRequest& inc);
 		RideRequest& operator=(const RideRequest& inc);
 		RideRequest& read(std::istream& istr = std::cin);
-		RideRequest& display();
+		const RideRequest& display() const;
 	};
 
 	extern double g_taxrate;

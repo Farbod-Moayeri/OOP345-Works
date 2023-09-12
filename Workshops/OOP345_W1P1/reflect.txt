@@ -1,0 +1,22 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 1 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-09-10
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
+	The greatest issue I had with this workshop was not understanding that the g_discount variable wasn't a percentage discount but instead a flat discount. I spent more time than I will admit to scratching my head to that. 
+	The difference between external linkage and internal linkage is that something that is externally linked is accessable from other modules/translation units and something that is internally linked is only accessable to itself. An example in my code is my RideRequest modules' externally linked g_discount and g_taxrate. Both variables were accessable from the main module due to being externally linked and as such could be used as global variables even though they were contained within the RideRequest module ONLY.
+	Static variables are variables that retain their value and memory address and do not fall out of scope untill the program they are contained within terminates. I used this unique atribute of static variables to keep track of the amount of times sdds::RideRequest::display() was invoked. I displayed the static number to standard output. 
+	The changes I made to my RideRequest module are:
+- I changed the headerfile definition of the g_description to be a char pointer
+- I added memory management to my copy constructor
+- I gave my default deconstructor a definition now that it was warranted
+- I changed how the read method in my RideRequest class works by using a string instead of a c-string to read from the file buffer, from there I dynamically allocated memory within the read method which I didnt do before.
+	
