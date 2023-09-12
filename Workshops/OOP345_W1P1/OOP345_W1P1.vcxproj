@@ -129,6 +129,7 @@
   <ItemGroup>
     <Text Include="rides1.txt" />
     <Text Include="rides2.txt" />
+    <Text Include="rides4.txt" />
     <Text Include="sample_output.txt" />
   </ItemGroup>
   <ItemGroup>

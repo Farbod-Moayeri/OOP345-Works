@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////
-//                  WorkShop 1 - Part 1
+//                  WorkShop 1 - Part 2
 // Name: Farbod Moayeri
 // Id: 134395227
 // Email: fmoayeri2@myseneca.ca
@@ -23,12 +23,12 @@ namespace sdds {
 
 	class RideRequest {
 		char g_name[NAME_LENGTH + 1]{};
-		char g_description[DESCRIPTION_LENGTH + 1]{};
+		char *g_description{ nullptr };
 		double g_price{ 0.0 };
 		bool g_isDiscount{ false };
 	public:
 		RideRequest() = default;
-		~RideRequest() = default;
+		~RideRequest();
 		RideRequest(const RideRequest& inc);
 		RideRequest& operator=(const RideRequest& inc);
 		RideRequest& read(std::istream& istr = std::cin);

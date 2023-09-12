@@ -24,6 +24,9 @@
     <Text Include="sample_output.txt">
       <Filter>Source Files</Filter>
     </Text>
+    <Text Include="rides4.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="w1_p1.cpp">
