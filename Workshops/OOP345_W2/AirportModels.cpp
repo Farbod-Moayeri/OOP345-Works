@@ -1,5 +1,7 @@
+#include <fstream>
 #include <iomanip>
 #include "AirportModels.h"
+
 
 namespace sdds {
 	Airport::operator bool() const
@@ -28,6 +30,41 @@ namespace sdds {
 		else
 		{
 			ostr << "Empty Airport";
+		}
+	}
+
+	std::istream& Airport::write(std::istream& istr)
+	{
+		istr.getline // AAAA
+	}
+
+	AirportLog::AirportLog(const char filename[])
+	{
+
+		std::ifstream file;
+		std::string temp;
+
+		if (filename != nullptr && filename[0] != '\0')
+		{
+			file.open(filename);
+
+			if (file)
+			{
+				while (!file.eof())
+				{
+					std::getline(file, temp, '\n');
+					m_numLogs++;
+				}
+
+				if (m_numLogs > 0)
+				{
+					m_logs = new Airport[m_numLogs];
+					file.seekg(0);
+
+
+				}
+			}
+
 		}
 	}
 

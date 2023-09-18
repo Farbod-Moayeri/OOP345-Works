@@ -24,12 +24,19 @@ namespace sdds {
 		Airport& operator=(const Airport& inc) = delete;
 
 		std::ostream& display(std::ostream& ostr) const;
+		std::istream& write(std::istream& istr);
 	};
 
 	std::ostream& operator<<(std::ostream& ostr, const Airport& inc);
+	std::istream& operator>>(std::istream& istr, Airport* inc);
 
 	class AirportLog {
+		size_t m_numLogs{ 0 };
+		Airport* m_logs{ nullptr };
+	public:
 
+		AirportLog() = default;
+		AirportLog(const char filename[]);
 	};
 }
 
