@@ -14,6 +14,30 @@ namespace sdds {
 		inc.display(ostr);
 	}
 
+	std::istream& operator>>(std::istream& istr, Airport& inc)
+	{
+		inc.read(istr);
+	}
+
+	Airport::Airport(const Airport& inc)
+	{
+		operator=(inc);
+	}
+
+	Airport& Airport::operator=(const Airport& inc)
+	{
+		if (&inc != this && inc)
+		{
+			m_code = inc.m_code;
+			m_name = inc.m_name;
+			m_city = inc.m_city;
+			m_state = inc.m_state;
+			m_country = inc.m_country;
+			m_lat = inc.m_lat;
+			m_long = inc.m_long;
+		}
+	}
+
 	std::ostream& Airport::display(std::ostream& ostr) const
 	{
 		if (*this) {
@@ -33,20 +57,59 @@ namespace sdds {
 		}
 	}
 
-	std::istream& Airport::write(std::istream& istr)
+	std::istream& Airport::read(std::istream& istr)
 	{
-		istr.getline // AAAA
+		Airport temp{};
+	
+		std::getline(istr ,temp.m_code, ',');
+		std::getline(istr, temp.m_name, ',');
+		std::getline(istr, temp.m_city, ',');
+		std::getline(istr, temp.m_state, ',');
+		std::getline(istr, temp.m_country, ',');
+		istr >> temp.m_lat;
+		istr.ignore();
+		istr >> temp.m_long;
+		istr.ignore();
+
+		if (istr.good())
+		{
+			*this = temp;
+		}
+
+		return istr;
+
+	}
+
+	std::ostream& Airport::write(std::ostream& ostr) const
+	{
+		if (*this)
+		{
+			ostr << m_code << ',';
+			ostr << m_name << ',';
+			ostr << m_city << ',';
+			ostr << m_state << ',';
+			ostr << m_country << ',';
+			ostr << m_lat << ',';
+			ostr << m_long << '\n';
+		}
+	}
+
+	AirportLog::operator bool() const
+	{
+		return m_filename.empty() ? false : true;
 	}
 
 	AirportLog::AirportLog(const char filename[])
 	{
-
+		int i{};
 		std::ifstream file;
 		std::string temp;
 
 		if (filename != nullptr && filename[0] != '\0')
 		{
-			file.open(filename);
+			m_filename.assign(filename);
+
+			file.open(m_filename);
 
 			if (file)
 			{
@@ -56,15 +119,30 @@ namespace sdds {
 					m_numLogs++;
 				}
 
+				m_numLogs--; // accounts for header at top of csv
+
 				if (m_numLogs > 0)
 				{
 					m_logs = new Airport[m_numLogs];
-					file.seekg(0);
+					file.seekg(1, std::ios_base::cur);
 
-
+					for (i = 0; i < m_numLogs; i++)
+					{
+						file >> m_logs[i];
+					}
 				}
 			}
 
+			file.close();
+
+		}
+	}
+
+	void AirportLog::addAirport(const Airport& inc)
+	{
+		if (inc && *this)
+		{
+			// TO DO
 		}
 	}
 
