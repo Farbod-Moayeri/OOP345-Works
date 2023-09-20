@@ -94,9 +94,38 @@ namespace sdds {
 		}
 	}
 
+	const std::string& const Airport::getState() const
+	{
+		return m_state;
+	}
+
+	const std::string& const Airport::getCountry() const
+	{
+		return m_country;
+	}
+
 	AirportLog::operator bool() const
 	{
 		return m_filename.empty() ? false : true;
+	}
+
+	void AirportLog::increaseSize(const int amount)
+	{
+		int i{};
+
+		if (amount > 0)
+		{
+			m_numLogs += amount;
+			Airport* temp = new Airport[m_numLogs];
+
+			for (i = 0; i < m_numLogs; i++)
+			{
+				temp[i] = m_logs[i];
+			}
+
+			delete[] m_logs;
+			m_logs = temp;
+		}
 	}
 
 	AirportLog::AirportLog(const char filename[])
@@ -138,12 +167,78 @@ namespace sdds {
 		}
 	}
 
+	AirportLog& AirportLog::operator=(const AirportLog& inc)
+	{
+		int i{};
+
+		if (inc.m_numLogs > 0 && inc.m_logs != nullptr && inc)
+		{
+			m_filename = inc.m_filename;
+			m_numLogs = inc.m_numLogs;
+			m_logs = new Airport[m_numLogs];
+
+			for (i = 0; i < m_numLogs; i++)
+			{
+				m_logs[i] = inc.m_logs[i];
+			}
+		}
+	}
+
+	AirportLog::AirportLog(const AirportLog& inc)
+	{
+		operator=(inc);
+	}
+
+	
+	AirportLog::AirportLog(const AirportLog& inc, const std::string& state, const std::string& country)
+	{
+		int i{};
+		if (inc && inc.m_logs != nullptr && inc.m_numLogs > 0)
+		{
+			
+			for (i = 0; i < inc.m_numLogs; i++)
+			{
+				if (inc.m_logs[i].getState() == state && inc.m_logs[i].getCountry() == country)
+				{
+					m_numLogs++;
+				}
+			}
+
+			m_logs = new Airport[m_numLogs];
+
+			for (i = 0; i < m_numLogs; i++)
+			{
+				if (inc.m_logs[i].getState() == state && inc.m_logs[i].getCountry() == country)
+				{
+					m_logs[i] = inc.m_logs[i];
+				}
+			}
+		}
+	}
+
 	void AirportLog::addAirport(const Airport& inc)
 	{
+		std::ofstream file{};
+
 		if (inc && *this)
 		{
-			// TO DO
+			file.open(m_filename);
+
+			if (file)
+			{
+				increaseSize();
+				file << inc;
+			}
+
+			file.close();
 		}
+	}
+
+	AirportLog& AirportLog::findAirport(const std::string& state, const std::string& country) const
+	{
+		AirportLog temp(*this, state, country);
+
+		return temp;
 	}
 
 }
