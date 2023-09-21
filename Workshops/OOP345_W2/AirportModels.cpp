@@ -8,15 +8,29 @@ namespace sdds {
 	{
 		return m_code.empty() ? false : true;
 	}
+
+	Airport::Airport(const std::string& code, const std::string& name, const std::string& city, const std::string& state, const std::string& country, const double lat, const double lon)
+	{
+		if (!code.empty() && !name.empty() && !city.empty() && !state.empty() && !country.empty())
+		{
+			m_code = code;
+			m_name = name;
+			m_city = city;
+			m_state = state;
+			m_country = country;
+			m_lat = lat;
+			m_long = lon;
+		}
+	}
 	
 	std::ostream& operator<<(std::ostream& ostr, const Airport& inc)
 	{
-		inc.display(ostr);
+		return inc.display(ostr);
 	}
 
 	std::istream& operator>>(std::istream& istr, Airport& inc)
 	{
-		inc.read(istr);
+		return inc.read(istr);
 	}
 
 	Airport::Airport(const Airport& inc)
@@ -36,31 +50,36 @@ namespace sdds {
 			m_lat = inc.m_lat;
 			m_long = inc.m_long;
 		}
+
+		return *this;
 	}
 
 	std::ostream& Airport::display(std::ostream& ostr) const
 	{
 		if (*this) {
 			ostr << std::setfill('.');
-			ostr << std::right << std::setw(20) << "Airport Code : " << std::left << std::setw(30) << m_code;
-			ostr << std::right << std::setw(20) << "Airport Name : " << std::left << std::setw(30) << m_name;
-			ostr << std::right << std::setw(20) << "Airport City : " << std::left << std::setw(30) << m_city;
-			ostr << std::right << std::setw(20) << "Airport State : " << std::left << std::setw(30) << m_state;
-			ostr << std::right << std::setw(20) << "Airport Country : " << std::left << std::setw(30) << m_country;
-			ostr << std::right << std::setw(20) << "Airport Latitude : " << std::left << std::setw(30) << m_lat;
-			ostr << std::right << std::setw(20) << "Airport Longitude : " << std::left << std::setw(30) << m_long;
+			ostr << std::right << std::setw(20) << "Airport Code : " << std::left << std::setw(30) << m_code << '\n';
+			ostr << std::right << std::setw(20) << "Airport Name : " << std::left << std::setw(30) << m_name << '\n';
+			ostr << std::right << std::setw(20) << "City : " << std::left << std::setw(30) << m_city << '\n';
+			ostr << std::right << std::setw(20) << "State : " << std::left << std::setw(30) << m_state << '\n';
+			ostr << std::right << std::setw(20) << "Country : " << std::left << std::setw(30) << m_country << '\n';
+			ostr << std::right << std::setw(20) << "Latitude : " << std::left << std::setw(30) << m_lat << '\n';
+			ostr << std::right << std::setw(20) << "Longitude : " << std::left << std::setw(30) << m_long << '\n';
 			ostr << std::setfill(' ');
 		}
 		else
 		{
 			ostr << "Empty Airport";
 		}
+
+		return ostr;
 	}
 
 	std::istream& Airport::read(std::istream& istr)
 	{
 		Airport temp{};
-	
+		istr.clear();
+
 		std::getline(istr ,temp.m_code, ',');
 		std::getline(istr, temp.m_name, ',');
 		std::getline(istr, temp.m_city, ',');
@@ -92,14 +111,16 @@ namespace sdds {
 			ostr << m_lat << ',';
 			ostr << m_long << '\n';
 		}
+
+		return ostr;
 	}
 
-	const std::string& const Airport::getState() const
+	const std::string& Airport::getState() const
 	{
 		return m_state;
 	}
 
-	const std::string& const Airport::getCountry() const
+	const std::string& Airport::getCountry() const
 	{
 		return m_country;
 	}
@@ -111,17 +132,19 @@ namespace sdds {
 
 	void AirportLog::increaseSize(const int amount)
 	{
-		int i{};
+		unsigned i{};
 
 		if (amount > 0)
 		{
 			m_numLogs += amount;
 			Airport* temp = new Airport[m_numLogs];
 
-			for (i = 0; i < m_numLogs; i++)
+			
+			for (i = 0; i < m_numLogs - 1; i++)
 			{
 				temp[i] = m_logs[i];
 			}
+			
 
 			delete[] m_logs;
 			m_logs = temp;
@@ -130,21 +153,28 @@ namespace sdds {
 
 	AirportLog::AirportLog(const char filename[])
 	{
-		int i{};
+		unsigned i{};
 		std::ifstream file;
 		std::string temp;
+		std::string firstLineLength{};
 
 		if (filename != nullptr && filename[0] != '\0')
 		{
 			m_filename.assign(filename);
 
-			file.open(m_filename);
+			file.open(m_filename, std::ifstream::in);
 
 			if (file)
 			{
 				while (!file.eof())
 				{
 					std::getline(file, temp, '\n');
+
+					if (m_numLogs == 0)
+					{
+						firstLineLength = temp + '\n';
+					}
+
 					m_numLogs++;
 				}
 
@@ -153,7 +183,7 @@ namespace sdds {
 				if (m_numLogs > 0)
 				{
 					m_logs = new Airport[m_numLogs];
-					file.seekg(1, std::ios_base::cur);
+					file.seekg(firstLineLength.length() + 1);
 
 					for (i = 0; i < m_numLogs; i++)
 					{
@@ -167,11 +197,16 @@ namespace sdds {
 		}
 	}
 
+	AirportLog::~AirportLog()
+	{
+		delete[] m_logs;
+	}
+
 	AirportLog& AirportLog::operator=(const AirportLog& inc)
 	{
-		int i{};
+		unsigned i{};
 
-		if (inc.m_numLogs > 0 && inc.m_logs != nullptr && inc)
+		if (inc.m_numLogs > 0 && inc.m_logs != nullptr)
 		{
 			m_filename = inc.m_filename;
 			m_numLogs = inc.m_numLogs;
@@ -182,6 +217,8 @@ namespace sdds {
 				m_logs[i] = inc.m_logs[i];
 			}
 		}
+
+		return *this;
 	}
 
 	AirportLog::AirportLog(const AirportLog& inc)
@@ -192,8 +229,9 @@ namespace sdds {
 	
 	AirportLog::AirportLog(const AirportLog& inc, const std::string& state, const std::string& country)
 	{
-		int i{};
-		if (inc && inc.m_logs != nullptr && inc.m_numLogs > 0)
+		unsigned i{};
+		unsigned y{0};
+		if (inc.m_logs != nullptr && inc.m_numLogs > 0)
 		{
 			
 			for (i = 0; i < inc.m_numLogs; i++)
@@ -206,21 +244,21 @@ namespace sdds {
 
 			m_logs = new Airport[m_numLogs];
 
-			for (i = 0; i < m_numLogs; i++)
+			for (i = 0; i < inc.m_numLogs; i++)
 			{
 				if (inc.m_logs[i].getState() == state && inc.m_logs[i].getCountry() == country)
 				{
-					m_logs[i] = inc.m_logs[i];
+					m_logs[y++] = inc.m_logs[i];
 				}
 			}
 		}
 	}
 
 	void AirportLog::addAirport(const Airport& inc)
-	{
+	{/*
 		std::ofstream file{};
 
-		if (inc && *this)
+		if (inc && !m_filename.empty())
 		{
 			file.open(m_filename);
 
@@ -231,14 +269,39 @@ namespace sdds {
 			}
 
 			file.close();
+		}*/
+
+		if (inc)
+		{
+			increaseSize();
+			m_logs[m_numLogs - 1] = inc;
 		}
 	}
 
-	AirportLog& AirportLog::findAirport(const std::string& state, const std::string& country) const
+	AirportLog AirportLog::findAirport(const std::string& state, const std::string& country) const
 	{
 		AirportLog temp(*this, state, country);
 
 		return temp;
+	}
+
+	const Airport AirportLog::operator[](const size_t index) const
+	{
+		// return index < m_numLogs ? m_logs[index] : Airport();
+
+		if (index < m_numLogs)
+		{
+			return m_logs[index];
+		}
+		else
+		{
+			return Airport();
+		}
+	}
+
+	AirportLog::operator size_t() const
+	{
+		return m_numLogs;
 	}
 
 }
