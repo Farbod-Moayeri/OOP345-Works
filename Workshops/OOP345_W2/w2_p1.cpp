@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     for (int i = 0; i < argc; i++)
         std::cout << std::setw(3) << i + 1 << ": " << argv[i] << '\n';
     std::cout << "--------------------------\n\n";
-
+    
     if (argc != 2)
     {
         std::cerr << std::endl << "***Incorrect number of arguments***" << std::endl;

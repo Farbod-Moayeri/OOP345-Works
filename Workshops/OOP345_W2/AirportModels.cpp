@@ -151,16 +151,16 @@ namespace sdds {
 		}
 	}
 
-	AirportLog::AirportLog(const char filename[])
+	AirportLog::AirportLog(const std::string& filename)
 	{
 		unsigned i{};
 		std::ifstream file;
 		std::string temp;
 		std::string firstLineLength{};
 
-		if (filename != nullptr && filename[0] != '\0')
+		if (!filename.empty())
 		{
-			m_filename.assign(filename);
+			m_filename = filename;
 
 			file.open(m_filename, std::ifstream::in);
 

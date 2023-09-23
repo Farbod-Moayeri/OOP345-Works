@@ -43,7 +43,7 @@ namespace sdds {
 	public:
 
 		AirportLog() = default;
-		AirportLog(const char filename[]);
+		AirportLog(const std::string& filename);
 		// rule of three
 		~AirportLog();
 		AirportLog& operator=(const AirportLog& inc);
