@@ -1,3 +1,16 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 2 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-09-23
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
 #include <fstream>
 #include <iomanip>
 #include "AirportModels.h"
@@ -33,6 +46,11 @@ namespace sdds {
 		return inc.read(istr);
 	}
 
+	Airport::~Airport()
+	{
+		// exists for strings
+	}
+
 	Airport::Airport(const Airport& inc)
 	{
 		operator=(inc);
@@ -58,13 +76,13 @@ namespace sdds {
 	{
 		if (*this) {
 			ostr << std::setfill('.');
-			ostr << std::right << std::setw(20) << "Airport Code : " << std::left << std::setw(30) << m_code << '\n';
-			ostr << std::right << std::setw(20) << "Airport Name : " << std::left << std::setw(30) << m_name << '\n';
-			ostr << std::right << std::setw(20) << "City : " << std::left << std::setw(30) << m_city << '\n';
-			ostr << std::right << std::setw(20) << "State : " << std::left << std::setw(30) << m_state << '\n';
-			ostr << std::right << std::setw(20) << "Country : " << std::left << std::setw(30) << m_country << '\n';
-			ostr << std::right << std::setw(20) << "Latitude : " << std::left << std::setw(30) << m_lat << '\n';
-			ostr << std::right << std::setw(20) << "Longitude : " << std::left << std::setw(30) << m_long << '\n';
+			ostr << std::right << std::setw(23) << "Airport Code : " << std::left << std::setw(30) << m_code << '\n';
+			ostr << std::right << std::setw(23) << "Airport Name : " << std::left << std::setw(30) << m_name << '\n';
+			ostr << std::right << std::setw(23) << "City : " << std::left << std::setw(30) << m_city << '\n';
+			ostr << std::right << std::setw(23) << "State : " << std::left << std::setw(30) << m_state << '\n';
+			ostr << std::right << std::setw(23) << "Country : " << std::left << std::setw(30) << m_country << '\n';
+			ostr << std::right << std::setw(23) << "Latitude : " << std::left << std::setw(30) << m_lat << '\n';
+			ostr << std::right << std::setw(23) << "Longitude : " << std::left << std::setw(30) << m_long << '\n';
 			ostr << std::setfill(' ');
 		}
 		else
@@ -80,6 +98,11 @@ namespace sdds {
 		Airport temp{};
 		istr.clear();
 
+		if (istr.peek() == '\n')
+		{
+			istr.ignore();
+		}
+
 		std::getline(istr ,temp.m_code, ',');
 		std::getline(istr, temp.m_name, ',');
 		std::getline(istr, temp.m_city, ',');
@@ -88,7 +111,11 @@ namespace sdds {
 		istr >> temp.m_lat;
 		istr.ignore();
 		istr >> temp.m_long;
-		istr.ignore();
+		
+		if (!istr.eof())
+		{
+			istr.ignore();
+		}
 
 		if (istr.good())
 		{
@@ -125,10 +152,6 @@ namespace sdds {
 		return m_country;
 	}
 
-	AirportLog::operator bool() const
-	{
-		return m_filename.empty() ? false : true;
-	}
 
 	void AirportLog::increaseSize(const int amount)
 	{
@@ -148,6 +171,7 @@ namespace sdds {
 
 			delete[] m_logs;
 			m_logs = temp;
+			temp = nullptr;
 		}
 	}
 
@@ -160,11 +184,9 @@ namespace sdds {
 
 		if (!filename.empty())
 		{
-			m_filename = filename;
+			file.open(filename, std::ifstream::in);
 
-			file.open(m_filename, std::ifstream::in);
-
-			if (file)
+			if (file.is_open())
 			{
 				while (!file.eof())
 				{
@@ -172,24 +194,36 @@ namespace sdds {
 
 					if (m_numLogs == 0)
 					{
-						firstLineLength = temp + '\n';
+						firstLineLength = temp;
 					}
-
+					
 					m_numLogs++;
 				}
 
-				m_numLogs--; // accounts for header at top of csv
+				m_numLogs-= 2; // for first line and last line
 
 				if (m_numLogs > 0)
 				{
 					m_logs = new Airport[m_numLogs];
-					file.seekg(firstLineLength.length() + 1);
+					file.clear();
+					file.seekg(firstLineLength.length(), std::ios::beg);
 
-					for (i = 0; i < m_numLogs; i++)
+					if (!file)
 					{
-						file >> m_logs[i];
+						std::cout << "ERROR: File pointer out of bounds." << '\n';
+					}
+					else 
+					{
+						for (i = 0; i < m_numLogs; i++)
+						{
+							file >> m_logs[i];
+						}
 					}
 				}
+			}
+			else
+			{
+				std::cout << "Failed to open file." << '\n';
 			}
 
 			file.close();
@@ -206,10 +240,10 @@ namespace sdds {
 	{
 		unsigned i{};
 
-		if (inc.m_numLogs > 0 && inc.m_logs != nullptr)
+		if (this != &inc && inc.m_numLogs > 0 && inc.m_logs != nullptr)
 		{
-			m_filename = inc.m_filename;
 			m_numLogs = inc.m_numLogs;
+			delete[] m_logs;
 			m_logs = new Airport[m_numLogs];
 
 			for (i = 0; i < m_numLogs; i++)
@@ -224,6 +258,30 @@ namespace sdds {
 	AirportLog::AirportLog(const AirportLog& inc)
 	{
 		operator=(inc);
+	}
+
+	AirportLog::AirportLog(AirportLog&& inc) noexcept
+	{
+		m_logs = inc.m_logs;
+		inc.m_logs = nullptr;
+
+		m_numLogs = inc.m_numLogs;
+		inc.m_numLogs = 0;
+	}
+
+	AirportLog& AirportLog::operator=(AirportLog&& inc) noexcept
+	{
+		if (this != &inc)
+		{
+			delete[] m_logs;
+			m_logs = inc.m_logs;
+			inc.m_logs = nullptr;
+
+			m_numLogs = inc.m_numLogs;
+			inc.m_numLogs = 0;
+		}
+
+		return *this;
 	}
 
 	
@@ -255,22 +313,7 @@ namespace sdds {
 	}
 
 	void AirportLog::addAirport(const Airport& inc)
-	{/*
-		std::ofstream file{};
-
-		if (inc && !m_filename.empty())
-		{
-			file.open(m_filename);
-
-			if (file)
-			{
-				increaseSize();
-				file << inc;
-			}
-
-			file.close();
-		}*/
-
+	{
 		if (inc)
 		{
 			increaseSize();

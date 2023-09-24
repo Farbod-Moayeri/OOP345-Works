@@ -1,0 +1,114 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 2 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-09-23
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
+The topics I have learned through this workshop is learning how to deal with reading from a file when the first line of the csv isnt supposed to be read, understanding how to create the move constructor and move assignment methods for a class, and learning about the chrono library and how it can be used to time events. 
+
+	The reason for the significant difference between the copy and move operations is that moving an address is much less arduos than moving all of the resources one by one. 
+
+AirportLog& AirportLog::operator=(const AirportLog& inc)
+	{
+		unsigned i{};
+
+		if (this != &inc && inc.m_numLogs > 0 && inc.m_logs != nullptr)
+		{
+			m_numLogs = inc.m_numLogs;
+			m_logs = new Airport[m_numLogs];
+
+			for (i = 0; i < m_numLogs; i++)
+			{
+				m_logs[i] = inc.m_logs[i];
+			}
+		}
+
+		return *this;
+	}
+
+AirportLog& AirportLog::operator=(AirportLog&& inc) noexcept
+	{
+		if (this != &inc)
+		{
+			
+
+			delete[] m_logs;
+			m_logs = inc.m_logs;
+			inc.m_logs = nullptr;
+
+			m_numLogs = inc.m_numLogs;
+			inc.m_numLogs = 0;
+		}
+
+		return *this;
+	}
+
+
+	The difference between the move assignment and the copy assignment in terms of time spent within each one is massive because of how time intensive the copy assignment is. First it needs to create the resources for the array of airports, which is time intensive. And then it needs to loop through all of the incoming resources and assign them to the new m_logs dynamic array. The assignment of each element then calls the copy assignment of the Airport class. Also the resources of the airport class are all strings which makes it even more time intensive as the String object is a massive one compared to a c_string character array. Meanwhile, the move assignment just deletes m_logs of the current object, sets the address of the current m_logs object to the incoming objects m_logs, and just does simple assignments the entire way. And theres only 4 of them, compared to the thousands in the copy assignment.
+
+AirportLog::AirportLog(const std::string& filename)
+	{
+		unsigned i{};
+		std::ifstream file;
+		std::string temp;
+		std::string firstLineLength{};
+
+		if (!filename.empty())
+		{
+			file.open(filename, std::ifstream::in);
+
+			if (file.is_open())
+			{
+				while (!file.eof())
+				{
+					std::getline(file, temp, '\n');
+
+					if (m_numLogs == 0)
+					{
+						firstLineLength = temp;
+					}
+					
+					m_numLogs++;
+				}
+
+				m_numLogs-= 2; // for first line and last line
+
+				if (m_numLogs > 0)
+				{
+					m_logs = new Airport[m_numLogs];
+					file.clear();
+					file.seekg(firstLineLength.length(), std::ios::beg);
+
+					if (!file)
+					{
+						std::cout << "ERROR: File pointer out of bounds." << '\n';
+					}
+					else 
+					{
+						for (i = 0; i < m_numLogs; i++)
+						{
+							file >> m_logs[i];
+						}
+					}
+				}
+			}
+			else
+			{
+				std::cout << "Failed to open file." << '\n';
+			}
+
+			file.close();
+
+		}
+	}
+
+	My AirportLog constructor that reads the input file reads from the file twice, once for the number of logs that will be used to allocate dynamic memory and once more to read the file and transfer each csv log to an Airport object. I could have done it differently by dynamically allocating memory each time a line is read and then writing it to the object but I thought that there wasnt a point to doing it like that as I dont have constraints on how many times I read the file.
+	The difference between steady clock and system clock is that the system clock is that the system clock corrects itself from time to time and it usually isnt used for timing events. Steady clock is used to time events because the steady clock doesnt get modified in any way.
+	

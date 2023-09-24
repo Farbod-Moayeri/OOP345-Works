@@ -1,8 +1,21 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 2 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-09-23
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
 #ifndef SDDS_AIRPORTMODELS_H
 #define SDDS_AIRPORTMODELS_H
 
 #include <string>
-#include <ostream>
+#include <iostream>
 
 namespace sdds {
 	class Airport {
@@ -19,9 +32,9 @@ namespace sdds {
 		Airport() = default;
 		Airport(const std::string& code, const std::string& name, const std::string& city, const std::string& state, const std::string& country, const double lat, const double lon);
 		// rule of three
-		virtual ~Airport() = default;
+		virtual ~Airport();
 		Airport(const Airport& inc);
-		Airport& operator=(const Airport& inc);
+		virtual Airport& operator=(const Airport& inc);
 		//
 		virtual std::ostream& display(std::ostream& ostr) const;
 		virtual std::istream& read(std::istream& istr);
@@ -35,26 +48,24 @@ namespace sdds {
 	std::istream& operator>>(std::istream& istr, Airport& inc);
 
 	class AirportLog {
-		std::string m_filename{};
 		size_t m_numLogs{ 0 };
 		Airport* m_logs{ nullptr };
-		explicit operator bool() const;
 		void increaseSize(const int amount = 1);
 	public:
 
 		AirportLog() = default;
 		AirportLog(const std::string& filename);
 		// rule of three
-		~AirportLog();
-		AirportLog& operator=(const AirportLog& inc);
+		virtual ~AirportLog();
+		virtual AirportLog& operator=(const AirportLog& inc);
 		AirportLog(const AirportLog& inc);
-		// AirportLog(AirportLog&& inc);
-		// AirportLog& operator=(AirportLog&& inc);
+		AirportLog(AirportLog&& inc) noexcept;
+		virtual AirportLog& operator=(AirportLog&& inc) noexcept;
 
 		//
 		AirportLog(const AirportLog& inc, const std::string& state, const std::string& country);
 		virtual void addAirport(const Airport& inc);
-		AirportLog findAirport(const std::string& state, const std::string& country) const;
+		virtual AirportLog findAirport(const std::string& state, const std::string& country) const;
 		virtual const Airport operator[](const size_t index) const;
 		virtual operator size_t() const;
 	};
