@@ -1,0 +1,162 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 3 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-10-01
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
+
+Q. In reflection explain: Why the definitions and implementations in this case should be included in header file? Are there ways to work around and include implementation in .cpp files?
+
+They are included in the header files because templates are not compiled the same way as normal files. The compiler generates concrete definitions for the utilized templates at compile time and the compiler needs to be able
+to see the declaration and the definition at the same time in order to generate code for each instantiation of the template.
+
+Q. In reflection, explain why it was necessary for you to add the members that you added into the Book class.
+
+If you mean member Methods then sure. 
+
+class Book {
+	std::string m_title{};
+	unsigned m_numChapters{ 0 };
+	unsigned m_numPages{ 0 };
+
+public:
+
+	Book() = default;
+	Book(const std::string& title, unsigned nChapters, unsigned nPages);
+	explicit operator bool() const;
+
+	// rule of five
+	Book(const Book& inc);
+	virtual Book& operator=(const Book& inc);
+	virtual ~Book() = default;
+	Book(Book&& inc);
+	virtual Book& operator=(Book&& inc);
+	// rule of five
+
+	virtual std::ostream& print(std::ostream& os) const;
+
+	// getters
+	std::string const getTitle() const;
+	unsigned getChapters() const;
+	unsigned getPages() const;
+
+};
+
+explicit operator bool() const: I added the explicit bool operator overload because I didn't want to keep writing verification on whether the current object is valid.
+
+// rule of five
+	Book(const Book& inc);
+	virtual Book& operator=(const Book& inc);
+	virtual ~Book() = default;
+	Book(Book&& inc);
+	virtual Book& operator=(Book&& inc);
+// rule of five
+
+I added the rule of five because thats just standard for defining classes. They have to have the rule of five defined, especially when the class has resources (in this case it doesnt but whatever).
+
+// getters
+	std::string const getTitle() const;
+	unsigned getChapters() const;
+	unsigned getPages() const;
+	
+I added public getters because I needed them for my helper operator overloads which were for the greater than and less than operators ( > && <).
+
+bool operator>(const Book& inc1, const Book& inc2);
+bool operator<(const Book& inc1, const Book& inc2);
+
+These operator overloads needed to be implemented because the Collection Template class needed them. Without that defined, books could not be properly collected and sorted in the Ordered Collection template class.
+
+Q. In reflection, explain why these functions cannot be querries, even though they do not change value.
+
+I do not understand this question. If it is referring to:
+
+static const T getSmallestItem() 
+{ 
+	return m_smallestItem; 
+}
+
+static const T getLargestItem() 
+{ 
+	return m_largestItem; 
+}
+
+These are by definition query methods of the Collection class. They both return an unmodifiable member resource that you typically dont have access to. Maybe it has to do with them being static?
+
+
+Q. operator[](): a mutator operator to receive an array index and return corresponding element from m_items array.
+   In reflection, discuss if we can make this function a query or not (do an experiment and discuss your results).
+
+Well right now its a mutator but in order to make it a query function, I believe all you would have to do to make it a query function is to make it return unmodifiable references.
+You would do that by making the returned references const instead of not. But when I do this, the member function of the OrderedCollection template breaks.
+
+template<typename T>
+class OrderedCollection : public Collection<T, 72> {
+public:
+	bool operator+=(const T& item) {
+		unsigned i;
+		unsigned j;
+
+		if (!Collection<T, 72>::operator+=(item)) 
+		{
+			return false;
+		}
+
+		for (i = 0; i < this->size() - 1; i++) 
+		{
+			for (j = 0; j < this->size() - i - 1; j++) 
+			{
+				if (this->operator[](j) > this->operator[](j + 1)) 
+				{
+					T temp = this->operator[](j);
+					this->operator[](j) = this->operator[](j + 1);
+					this->operator[](j + 1) = temp;
+				}
+			}
+		}
+
+		return true;
+	}
+
+};
+
+It breaks because it requires that the operator[] overload be a mutator that allows the reference that is returned to be modifiable in order to sort the array.
+
+
+What is the reason for defining the class objects outside the class definition?
+
+You have to do this because the static data members within the class do not have allocated storage for themselves. That is why they must be initialized outside of the class, where they will have a valid address to store their
+values in.
+
+Q. What is the reason for specializing the definition of m_smallestItem and m_largestItem objects for Book and 10.
+
+I believe it is specialized to create a valid initialization for types that are Books as the default initialization does this:
+
+template<typename T, unsigned C>
+T Collection<T, C>::m_smallestItem = T(9999);
+
+template<typename T, unsigned C>
+T Collection<T, C>::m_largestItem = T(-9999);
+
+Which wont work for any of the constructors that my Book class has so instead we create specializations for Books only which uses the three argument constructor.
+
+template<>
+Book Collection<Book, 10>::m_smallestItem = Book("", 1, 10000);
+
+template<>
+Book Collection<Book, 10>::m_largestItem = Book("", 10000, 1);
+
+Funny thing is that my three argument constructor for book just ends up creating an invalid object which is empty given those parameters. I beleive that is intended but the same thing could have been
+done with just the default constructor instead of the three argument constructor.
+
+Q. m_smallestItem and m_largestItem objects are also initialized for Book and 72. Is this initilization necessary? Why?
+
+This I believe is also done to avoid the generic static member constructors mentioned before. Though the number 72 and 10 are odd to specify, they are necessary as the class template definition asks for a number to be
+specified as the limit of storage. In order to change this, we would basically have to make it so our class template only cares about the type it is collecting. We would have to redefine alot of things, but ultimately
+I believe it is a better design choice for most things. Why do you need a limit? I think that limit is better off being defined outside of the template rather than being a part of the template. 
