@@ -132,10 +132,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cheese.cpp" />
-    <ClCompile Include="w4_p1.cpp" />
+    <ClCompile Include="CheeseShop.cpp" />
+    <ClCompile Include="w4_p2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cheese.h" />
+    <ClInclude Include="CheeseShop.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

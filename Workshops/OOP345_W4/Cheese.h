@@ -4,7 +4,7 @@
 // Id: 134395227
 // Email: fmoayeri2@myseneca.ca
 // Section: NFF
-// Date: 2023-09-23
+// Date: 2023-10-05
 ///////////////////////////////////////////////////////
 // I have done all the coding by myself and only copied
 // the code that my professor provided to complete my 
@@ -19,7 +19,7 @@
 namespace sdds {
 	class Cheese {
 		std::string m_name{ "NaC" };
-		int m_weight{ 0 };
+		unsigned m_weight{ 0 };
 		double m_price{ 0.0 };
 		std::string m_features{};
 		virtual std::string trim(const std::string& inc) const;
@@ -27,6 +27,7 @@ namespace sdds {
 		Cheese() = default;
 		Cheese(const std::string& str);
 		virtual Cheese slice(size_t weight);
+
 		// rule of five
 		virtual ~Cheese() = default;
 		Cheese(const Cheese& inc);

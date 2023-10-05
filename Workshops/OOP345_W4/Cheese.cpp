@@ -4,16 +4,16 @@
 // Id: 134395227
 // Email: fmoayeri2@myseneca.ca
 // Section: NFF
-// Date: 2023-09-23
+// Date: 2023-10-05
 ///////////////////////////////////////////////////////
 // I have done all the coding by myself and only copied
 // the code that my professor provided to complete my 
 // workshops and assignments.
 ///////////////////////////////////////////////////////
+
 #include <iostream>
 #include <iomanip>
 #include "Cheese.h"
-
 
 namespace sdds {
 	std::string Cheese::trim(const std::string& inc) const
@@ -51,7 +51,7 @@ namespace sdds {
 			m_weight = std::stoul(trim(cpy.substr(0 , cpy.find(','))));
 			cpy.erase(0, cpy.find(',') + 1);
 
-			m_price = std::stoul(trim(cpy.substr(0 , cpy.find(','))));
+			m_price = std::stod(trim(cpy.substr(0 , cpy.find(','))));
 			cpy.erase(0, cpy.find(',') + 1);
 
 			while (cpy.length() > 0)

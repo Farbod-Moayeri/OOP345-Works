@@ -23,15 +23,21 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="w4_p1.cpp">
+    <ClCompile Include="Cheese.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cheese.cpp">
+    <ClCompile Include="w4_p2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CheeseShop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cheese.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CheeseShop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
