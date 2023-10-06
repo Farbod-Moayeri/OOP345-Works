@@ -28,6 +28,8 @@ namespace sdds {
 		Cheese(const std::string& str);
 		virtual Cheese slice(size_t weight);
 
+		explicit operator bool() const;
+
 		// rule of five
 		virtual ~Cheese() = default;
 		Cheese(const Cheese& inc);

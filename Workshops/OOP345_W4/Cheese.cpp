@@ -87,6 +87,10 @@ namespace sdds {
 
 		return local;
 	}
+	Cheese::operator bool() const
+	{
+		return m_name != "NaC" && m_name.length() > 0;
+	}
 	Cheese::Cheese(const Cheese& inc)
 	{
 		*this = inc;

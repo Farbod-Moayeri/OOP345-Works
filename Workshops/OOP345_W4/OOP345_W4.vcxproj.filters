@@ -32,12 +32,18 @@
     <ClCompile Include="CheeseShop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CheeseParty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cheese.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CheeseShop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CheeseParty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
