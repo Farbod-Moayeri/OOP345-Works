@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////
 
 #ifndef SDDS_CHEESESHOP_H
-#define SDDS_CHEESEHOP_H
+#define SDDS_CHEESESHOP_H
 
 #include <string>
 #include "Cheese.h"
@@ -21,7 +21,8 @@ namespace sdds {
 	class CheeseShop {
 		std::string m_name{};
 		Cheese** m_products{ nullptr };
-		size_t m_numProducts{ 0.0 };
+		size_t m_numProducts{ 0 };
+		explicit operator bool() const;
 	public:
 		// spec requirements
 		CheeseShop(const std::string& name = "No Name");

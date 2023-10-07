@@ -147,12 +147,13 @@ namespace sdds {
 
 	std::ostream& operator<<(std::ostream& ostr, const Cheese& inc)
 	{
-		
-		ostr << "|" << std::left << std::setw(21) << inc.getName();
-		ostr << "|" << std::setw(5) << inc.getWeight();
-		ostr << "|" << std::fixed << std::setprecision(2) << std::setw(5) << inc.getPrice();
-		ostr << "|" << std::right << std::setw(34) << inc.getFeatures() << "|" << '\n';
-		
+		if (inc)
+		{
+			ostr << "|" << std::left << std::setw(21) << inc.getName();
+			ostr << "|" << std::setw(5) << inc.getWeight();
+			ostr << "|" << std::fixed << std::setprecision(2) << std::setw(5) << inc.getPrice();
+			ostr << "|" << std::right << std::setw(34) << inc.getFeatures() << "|" << '\n';
+		}
 
 		return ostr;
 	}

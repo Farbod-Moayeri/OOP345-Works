@@ -19,7 +19,7 @@
 namespace sdds {
 	class Cheese {
 		std::string m_name{ "NaC" };
-		unsigned m_weight{ 0 };
+		size_t m_weight{ 0 };
 		double m_price{ 0.0 };
 		std::string m_features{};
 		virtual std::string trim(const std::string& inc) const;
