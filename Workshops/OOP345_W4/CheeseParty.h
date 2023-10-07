@@ -17,8 +17,13 @@ namespace sdds {
 		friend std::ostream& operator<<(std::ostream& ostr, const CheeseParty& inc);
 		// requirements
 
-		
-
+		// rule of five
+		~CheeseParty();
+		CheeseParty(const CheeseParty& inc);
+		CheeseParty& operator=(const CheeseParty& inc);
+		CheeseParty(CheeseParty&& inc) noexcept;
+		CheeseParty& operator=(CheeseParty&& inc) noexcept;
+		// rule of five
 
 	};
 }

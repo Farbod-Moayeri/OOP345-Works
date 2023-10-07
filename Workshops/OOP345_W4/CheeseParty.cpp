@@ -29,6 +29,7 @@ namespace sdds {
 
                 local[m_numCheese] = &inc;
 
+                m_numCheese++;
                 delete[] m_cheeses;
                 m_cheeses = local;
             }
@@ -51,6 +52,57 @@ namespace sdds {
         return *this;
     }
 
+    CheeseParty::~CheeseParty()
+    {
+        delete[] m_cheeses;
+    }
+
+    CheeseParty::CheeseParty(const CheeseParty& inc)
+    {
+        operator=(inc);
+    }
+
+    CheeseParty& CheeseParty::operator=(const CheeseParty& inc)
+    {
+        size_t i{};
+
+        if (this != &inc && inc)
+        {
+            delete[] m_cheeses;
+            m_numCheese = inc.m_numCheese;
+
+            m_cheeses = new const Cheese * [m_numCheese];
+            
+            for (i = 0; i < m_numCheese; i++)
+            {
+                m_cheeses[i] = inc.m_cheeses[i];
+            }
+
+        }
+
+        return *this;
+    }
+
+    CheeseParty::CheeseParty(CheeseParty&& inc) noexcept
+    {
+        *this = std::move(inc);
+    }
+
+    CheeseParty& CheeseParty::operator=(CheeseParty&& inc) noexcept
+    {
+        if (this != &inc)
+        {
+            delete[] m_cheeses;
+            m_cheeses = inc.m_cheeses;
+            inc.m_cheeses = nullptr;
+
+            m_numCheese = inc.m_numCheese;
+            inc.m_numCheese = 0;
+        }
+
+        return *this;
+    }
+
     CheeseParty::operator bool() const
     {
         return m_numCheese > 0;
@@ -68,7 +120,10 @@ namespace sdds {
         {
             for (i = 0; i < inc.m_numCheese; i++)
             {
-                ostr << *inc.m_cheeses[i];
+                if (inc.m_cheeses[i] != nullptr)
+                {
+                    ostr << *inc.m_cheeses[i];
+                }
             }
         }
         else
@@ -76,7 +131,7 @@ namespace sdds {
             ostr << "This party is just getting started!" << '\n';
         }
 
-        ostr << "--------------------------";
+        ostr << "--------------------------" << '\n';
 
         return ostr;
     }

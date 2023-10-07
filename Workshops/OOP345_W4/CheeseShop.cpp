@@ -50,7 +50,7 @@ namespace sdds {
 
 		for (i = 0; i < m_numProducts; i++)
 		{
-			delete[] m_products[i];
+			delete m_products[i];
 		}
 
 		delete[] m_products;
@@ -69,7 +69,7 @@ namespace sdds {
 		{
 			for (i = 0; i < m_numProducts; i++)
 			{
-				delete[] m_products[i];
+				delete m_products[i];
 			}
 
 			delete[] m_products;
@@ -101,23 +101,18 @@ namespace sdds {
 		{
 			for (i = 0; i < m_numProducts; i++)
 			{
-				delete[] m_products[i];
+				delete m_products[i];
 			}
 
 			delete[] m_products;
 
-			m_name = inc.m_name;
+			m_name = std::move(inc.m_name);
 			m_numProducts = inc.m_numProducts;
 			m_products = inc.m_products;
 
 			inc.m_name = "";
 			inc.m_numProducts = 0;
-			for (i = 0; i < inc.m_numProducts; i++)
-			{
-				delete[] inc.m_products[i];
-			}
-
-			delete[] inc.m_products;
+			inc.m_products = nullptr;
 		}
 
 		return *this;
@@ -128,10 +123,17 @@ namespace sdds {
 		size_t i{};
 
 		ostr << "--------------------------" << '\n';
-		ostr << "SHOP_NAME" << '\n';
+		if (inc.m_name.length() > 0)
+		{
+			ostr << inc.m_name << '\n';
+		}
+		else
+		{
+			ostr << '\n';
+		}
 		ostr << "--------------------------" << '\n';
 
-		if (inc.m_numProducts > 0)
+		if (inc)
 		{
 			for (i = 0; i < inc.m_numProducts; i++)
 			{
@@ -143,7 +145,7 @@ namespace sdds {
 			ostr << "This shop is out of cheese!" << '\n';
 		}
 
-		ostr << "--------------------------";
+		ostr << "--------------------------" << '\n';
 
 		return ostr;
 	}

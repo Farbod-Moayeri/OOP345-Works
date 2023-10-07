@@ -40,7 +40,7 @@ namespace sdds {
 
 		// getters
 		std::string getName() const;
-		int getWeight() const;
+		size_t getWeight() const;
 		double getPrice() const;
 		std::string getFeatures() const;
 		// getters

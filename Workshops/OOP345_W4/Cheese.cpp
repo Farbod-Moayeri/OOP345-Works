@@ -76,7 +76,7 @@ namespace sdds {
 	{
 		Cheese local{};
 
-		if (weight < m_weight)
+		if (weight <= m_weight)
 		{
 			local = *this;
 
@@ -132,7 +132,7 @@ namespace sdds {
 	{
 		return m_name;
 	}
-	int Cheese::getWeight() const
+	size_t Cheese::getWeight() const
 	{
 		return m_weight;
 	}
