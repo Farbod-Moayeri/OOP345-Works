@@ -1,0 +1,284 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 4 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-10-01
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
+
+Q. the difference between the implementations of a composition and an aggregation with reference to the classes used in this workshop.
+
+	The difference between the implementations of a composition and an aggregation relationship is as follows: 
+Classes that have a composition association with another class basically "contain" the other class and are responsible for controlling the lifetime of the contained class. 
+In the implementation: 
+
+CheeseShop& CheeseShop::addCheese(const Cheese& inc)
+{
+	Cheese** local{ nullptr };
+	size_t i{};
+
+	if (inc.getName() != "NaC")
+	{
+		local = new Cheese*[m_numProducts + 1];
+
+		for (i = 0; i < m_numProducts; i++)
+		{
+			local[i] = new Cheese;
+			*local[i] = *this->m_products[i];
+		}
+		
+		local[m_numProducts] = new Cheese;
+		*local[m_numProducts] = inc;
+
+		for (i = 0; i < m_numProducts; i++)
+		{
+			delete m_products[i];
+		}
+
+		delete[] m_products;
+
+		m_numProducts++;
+
+
+		m_products = local;
+	}
+
+	return *this;
+}
+
+CheeseShop::~CheeseShop()
+{
+	size_t i{};
+
+	for (i = 0; i < m_numProducts; i++)
+	{
+		delete m_products[i];
+	}
+
+	delete[] m_products;
+}
+
+	These two methods aptly demonstrate the relationship between CheeseShop and Cheese. CheeseShop is responsible for managing Cheese in every way. The only thing that CheeseShop cannot do to Cheese
+is access private members and methods of the Cheese class. CheeseShop can control the lifetime of Cheese, change the member variables of Cheese through its public methods that allow it, and even delete a Cheese.
+
+	Classes that have a aggregation relationship with another class are far more loosely coupled to that class. They only have access to instances of the other class and usually cannot change them.
+The aggregated class can exist independantly from its parent class. It is completely difference from a composition relationship where the child class cannot exist without its parent class.
+
+In the Implementation:
+
+CheeseParty& CheeseParty::addCheese(const Cheese& inc)
+{
+	size_t i{};
+	bool alreadyExists{ false };
+	const Cheese** local{ nullptr };
+
+	if (inc)
+	{
+		for (i = 0; i < m_numCheese; i++)
+		{
+			if (m_cheeses[i] == &inc)
+			{
+				alreadyExists = true;
+			}
+		}
+
+		if (!alreadyExists)
+		{
+			local = new const Cheese * [m_numCheese + 1];
+
+			for (i = 0; i < m_numCheese; i++)
+			{
+				local[i] = m_cheeses[i];
+			}
+
+			local[m_numCheese] = &inc;
+
+			
+			delete[] m_cheeses;
+			m_cheeses = local;
+
+			m_numCheese++;
+		}
+	}
+
+	return *this;
+}
+	
+CheeseParty::~CheeseParty()
+{
+	delete[] m_cheeses;
+}
+
+	The relationship between CheeseParty and Cheese is an aggregation relationship. CheeseParty is not able to affect the child class in any way. 
+And the only way CheeseParty interacts with Cheese is by adding Cheese addresses to the const Cheese array that it owns. It cannot deallocate what those addresses are pointing to, nor can it use any public methods
+Cheese has to change any Cheese instance. The relationship between them is basically the relationship between the admired and the admirer.
+
+
+Q. the difference between the implementations of move and copy functions in a composition and an aggregation with reference to the classes used in this workshop.
+
+CheeseShop& CheeseShop::operator=(const CheeseShop& inc)
+{
+	size_t i{};
+
+	if (this != &inc && inc)
+	{
+		for (i = 0; i < m_numProducts; i++)
+		{
+			delete m_products[i];
+		}
+
+		delete[] m_products;
+
+		m_name = inc.m_name;
+		m_numProducts = inc.m_numProducts;
+		m_products = new Cheese * [m_numProducts];
+
+		for (i = 0; i < m_numProducts; i++)
+		{
+			m_products[i] = new Cheese;
+			*m_products[i] = *inc.m_products[i];
+		}
+	}
+
+	return *this;
+}
+
+CheeseShop& CheeseShop::operator=(CheeseShop&& inc) noexcept
+{
+	size_t i{};
+
+	if (this != &inc && inc)
+	{
+		for (i = 0; i < m_numProducts; i++)
+		{
+			delete m_products[i];
+		}
+
+		delete[] m_products;
+
+		m_name = std::move(inc.m_name);
+		m_numProducts = inc.m_numProducts;
+		m_products = inc.m_products;
+
+		inc.m_name = "";
+		inc.m_numProducts = 0;
+		inc.m_products = nullptr;
+	}
+
+	return *this;
+}
+
+	These are the implementation's of the copy and move constructor for the CheeseShop class that has a composition relationship with its array of child classes that it is managing using the move and copy methods.
+The copy constructor deallocates every Cheese object and then the array that holds those cheese pointer values. That means it destroys those objects completely, all values lost within those classes.
+
+The copy and move methods of CheeseParty do not do that:
+
+
+CheeseParty& CheeseParty::operator=(const CheeseParty& inc)
+{
+	size_t i{};
+
+	if (this != &inc && inc)
+	{
+		delete[] m_cheeses;
+		m_numCheese = inc.m_numCheese;
+
+		m_cheeses = new const Cheese * [m_numCheese];
+		
+		for (i = 0; i < m_numCheese; i++)
+		{
+			m_cheeses[i] = inc.m_cheeses[i];
+		}
+
+	}
+
+	return *this;
+}
+
+CheeseParty& CheeseParty::operator=(CheeseParty&& inc) noexcept
+{
+	if (this != &inc)
+	{
+		delete[] m_cheeses;
+		m_cheeses = inc.m_cheeses;
+		inc.m_cheeses = nullptr;
+
+		m_numCheese = inc.m_numCheese;
+		inc.m_numCheese = 0;
+	}
+
+	return *this;
+}
+
+	As we can see here, the individual cheese objects are never touched in any way. The only thing that is deallocated is the array that holds all the addresses of the individual Cheeses, 
+not what those addresses are pointing to. That way the individual Cheese Objects are not violated in any way, or modified. The copy assignment member method only copies the addresses, it does not
+do a deep copy and therefore does not bear the responsibility of deallocating each individual Cheese.
+
+Q. both CheeseShop and CheeseParty classes have an addCheese function, how do they differ in implementation. Why?
+
+	They differ in implementation by either owning their own resource or not owning their own resource. CheeseShop has a composition association with Cheese. It owns that Cheese and determines its lifetime.
+CheeseShops addCheese method therefore creates a Cheese instance that it owns and populates it with values using its parameter. It allocates memory from the heap to do this and does a deep copy for each Cheese.
+Since it allocates memory from the heap to do this, memory for both the array that holds the addresses of the Cheeses and memory for each Cheese instance, it holds the responsibility to deallocate it later.
+	The CheeseParty class has an aggregation association with Cheese. It only allocates memory from the heap to hold the Cheese Addresses and not the Cheese instances themselves. They are supplied to CheeseParty
+and CheeseParty does not hold the responsibility of deallocating those Cheese objects. All CheeseParty does it store the addresses that point to valid Cheese Objects, thats it. CheeseParty does not fiddle with the
+objects themselves in any way.
+
+Q. the CheeseShop class doesn't have a removeCheese function like the CheeseParty does. 
+   How would you implement one to keep in line with how CheeseShop handles its cheeses? What else would need to change in the project? Use pseudocode to illustrate your idea.
+   
+	This is how I would implement one: Im just gonna properly code it out since its easier for me.
+	
+CheeseShop& CheeseShop::removeCheese()
+{
+	size_t i{};
+	Cheese** local{ nullptr };
+	size_t cheesesDeleted{ 0 };
+
+	for (i = 0; i < m_numProducts; i++)
+	{
+		if (m_products[i] != nullptr && m_products[i]->getWeight() == 0)
+		{
+			cheesesDeleted++;
+			delete m_products[i];
+			m_products[i] = nullptr;
+		}
+	}
+
+	local = new Cheese * [m_numProducts - cheesesDeleted];
+
+	for (i = 0; i < m_numProducts; i++)
+	{
+		if (m_products[i] != nullptr)
+		{
+			local[i] = m_products[i];
+		}
+	}
+
+	for (i = 0; i < m_numProducts; i++)
+	{
+		delete m_products[i];
+	}
+
+	delete[] m_products;
+	m_products = local;
+	m_numProducts = m_numProducts - cheesesDeleted;
+
+
+	return *this;
+}
+
+	first we delete all invalid Cheese Objects and set the address that held the pointer to nullptr. We also increment a variable to be able to resize the new array.
+	second, we allocate heap memory to a local Cheese** variable to hold the valid addresses. It is sized to the previous size minus the deleted Cheeses.
+	third, we loop through the valid Cheese addresses and store them in the local variable.
+	fourth, we delete the remaining valid Cheese objects that were stored in the Cheese pointer array.
+	fifth, we delete the pointer array itself and then its address equal to the local array's address so we dont lose the valid addresses when the local variable falls out of scope.
+	sixth, we change the value of the number of products to reflect its new value.
+	
+	
+Additional note: The most difficult thing about this workshop was figuring out how double pointers work compared to single pointers.

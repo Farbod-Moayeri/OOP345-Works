@@ -1,3 +1,16 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 4 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-09-23
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
 #include <iostream>
 #include "CheeseShop.h"
 
@@ -30,7 +43,7 @@ namespace sdds {
 
 			for (i = 0; i < m_numProducts; i++)
 			{
-				delete[] m_products[i];
+				delete m_products[i];
 			}
 
 			delete[] m_products;
@@ -118,6 +131,45 @@ namespace sdds {
 		return *this;
 	}
 
+	CheeseShop& CheeseShop::removeCheese()
+	{
+		size_t i{};
+		Cheese** local{ nullptr };
+		size_t cheesesDeleted{ 0 };
+
+		for (i = 0; i < m_numProducts; i++)
+		{
+			if (m_products[i] != nullptr && m_products[i]->getWeight() == 0)
+			{
+				cheesesDeleted++;
+				delete m_products[i];
+				m_products[i] = nullptr;
+			}
+		}
+
+		local = new Cheese * [m_numProducts - cheesesDeleted];
+
+		for (i = 0; i < m_numProducts; i++)
+		{
+			if (m_products[i] != nullptr)
+			{
+				local[i] = m_products[i];
+			}
+		}
+
+		for (i = 0; i < m_numProducts; i++)
+		{
+			delete m_products[i];
+		}
+
+		delete[] m_products;
+		m_products = local;
+		m_numProducts = m_numProducts - cheesesDeleted;
+
+
+		return *this;
+	}
+
 	std::ostream& operator<<(std::ostream& ostr, const CheeseShop& inc)
 	{
 		size_t i{};
@@ -137,7 +189,10 @@ namespace sdds {
 		{
 			for (i = 0; i < inc.m_numProducts; i++)
 			{
-				ostr << *inc.m_products[i];
+				if (inc.m_products[i] != nullptr)
+				{
+					ostr << *inc.m_products[i];
+				}
 			}
 		}
 		else

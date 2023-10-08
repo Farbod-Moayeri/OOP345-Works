@@ -37,6 +37,8 @@ namespace sdds {
 		CheeseShop(CheeseShop&& inc) noexcept;
 		CheeseShop& operator=(CheeseShop&& inc) noexcept;
 		// rule of five
+
+		CheeseShop& removeCheese();
 	};
 
 	
