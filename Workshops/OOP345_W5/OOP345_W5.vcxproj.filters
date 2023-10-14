@@ -21,6 +21,9 @@
     <Text Include="books.txt">
       <Filter>Source Files</Filter>
     </Text>
+    <Text Include="words.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="w5_p1.cpp">
@@ -29,9 +32,15 @@
     <ClCompile Include="Book.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SpellChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Book.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpellChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
