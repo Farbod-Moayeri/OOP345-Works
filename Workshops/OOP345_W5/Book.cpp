@@ -61,7 +61,7 @@ namespace sdds {
     }
     Book::Book(const std::string& strBook)
     {
-        if (strBook.length() > 0)
+        if (strBook != "")
         {
             std::string cpy = strBook;
 
@@ -80,7 +80,7 @@ namespace sdds {
             m_year = std::stoul(trim(cpy.substr(0, cpy.find(','))));
             cpy.erase(0, cpy.find(',') + 1);
 
-            m_description = trim(cpy.substr(0, cpy.find(',')));
+            m_description = trim(cpy.substr(0, cpy.find('\n')));
             cpy.erase(0, cpy.find('\n'));
         }
     }
@@ -92,7 +92,7 @@ namespace sdds {
             ostr << std::setw(22) << inc.m_title << " | ";
             ostr << std::setw(5) << inc.m_country << " | ";
             ostr << std::setw(4) << inc.m_year << " | ";
-            ostr << std::setw(6) << std::setprecision(2) << inc.m_price << " | ";
+            ostr << std::setw(6) << std::setprecision(2) << std::fixed << inc.m_price << " | ";
             ostr << inc.m_description << '\n';
         }
 

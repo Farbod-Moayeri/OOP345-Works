@@ -34,16 +34,25 @@ namespace sdds {
 		const size_t& year() const;
 		double& price();
 		Book(const std::string& strBook);
-		virtual friend std::ostream& operator<<(std::ostream& ostr, const Book& inc);
+		friend std::ostream& operator<<(std::ostream& ostr, const Book& inc);
+
+		template<typename T>
+		void fixSpelling(T& spellChecker)
+		{
+			spellChecker.operator()(m_description);
+		}
 		// assignment specs
 
 		// rule of five
 		virtual ~Book() = default;
 		Book(const Book& inc) = default;
 		virtual Book& operator=(const Book& inc) = default;
-		Book(Book&& inc) = default;
-		virtual Book& operator=(Book&& inc) = default;
+		Book(Book&& inc) noexcept = default;
+		virtual Book& operator=(Book&& inc) noexcept = default;
+		// rule of five
 	};
+
+	
 }
 
 #endif // !SDDS_BOOK_H

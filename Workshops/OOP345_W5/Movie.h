@@ -11,23 +11,30 @@
 // workshops and assignments.
 ///////////////////////////////////////////////////////
 
-#ifndef SDDS_SPELLCHECKER_H
-#define SDDS_SPELLCHECKER_H
+#ifndef SDDS_MOVIE_H
+#define SDDS_MOVIE_H
 
 #include <string>
 
 namespace sdds {
-	class SpellChecker {
-		std::string m_badWords[6]{};
-		std::string m_goodWords[6]{};
-		size_t m_wordReplaced[6]{};
-		size_t m_wordsStored{};
+	class Movie {
+		std::string m_title{};
+		size_t m_year{};
+		std::string m_description{};
 		std::string trim(const std::string& inc) const;
+		explicit operator bool() const;
 	public:
-		SpellChecker(const char* filename);
-		void operator()(std::string& text);
-		void showStatistics(std::ostream& out) const;
+		Movie() = default;
+		const std::string& title() const;
+		Movie(const std::string& strMovie);
+		template<typename T>
+		void fixSpelling(T& spellChecker)
+		{
+			spellChecker.operator()(m_title);
+			spellChecker.operator()(m_description);
+		}
+		friend std::ostream& operator<<(std::ostream& ostr, const Movie& inc);
 	};
 }
-#endif // !SDDS_SPELLCHECKER_H
+#endif // !SDDS_MOVIE_H
 

@@ -1,0 +1,95 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 5 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-10-01
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
+
+Q. the difference between the implementations/utilizations of a functor and a lambda expression. When is appropriate to use each one?
+
+	The differences between the implementation of functors and lambda expressions is that functors are operator() overloads which are meant to
+be used multiple times and lambda expressions are typically a one time use function that is typically short. It is appropiate to use
+a functor when your object benefits from multiple functions that change its state or you just need logic that will be reused in different places.
+It is appropiate to use a lambda expression when your logic is only needed one time and is short and to the point.
+
+
+incredibly simple logic that needs to only be used one time. Very specific use case logic.
+auto priceCal = [usdToCadRate, gbpToCadRate](sdds::Book& book) -> void 
+{
+	if (book.country() == "US")
+	{
+		book.price() = book.price() * usdToCadRate;
+	}
+	else if (book.country() == "UK" && (book.year() > 1990 && book.year() < 1999))
+	{
+		book.price() = book.price() * gbpToCadRate;
+	}
+};
+
+logic that is used over and over again in many different scenarios. General use logic.
+void SpellChecker::operator()(std::string& text)
+{
+	size_t i{};
+	size_t start{};
+
+	if (text.length() > 0)
+	{
+		for (i = 0; i < m_wordsStored; i++)
+		{
+			start = 0;
+			while ((start = text.find(m_badWords[i], start)) != std::string::npos)
+			{
+				text.replace(start, m_badWords[i].length(), m_goodWords[i]);
+				start += m_goodWords[i].length();
+				m_wordReplaced[i]++;
+			}
+		}
+	}
+}
+
+Q. the constructor for SpellChecker generates an exception in certain conditions. 
+   How would you change your code to achieve the same result, but without exceptions (both on the constructor and on the client side)? 
+   Compare the two solutions.
+
+	Instead of having the constructor be responsible for initializing the SpellChecker Object, I would have a member method that does the same
+thing as the constructor, but it would have a return type of bool. If it returns true, then the words have been read from the file. If it returns
+false, either the file couldnt be read or something went wrong with the initialization. Then on the client-side code:
+
+catch (const char* err)
+{
+	std::cout << "** EXCEPTION: " << err << "\n";
+}
+
+instead of having a try catch block, I would just have an if statement with the membermethod instead of the condition for the if, and if the return
+of the member method was false, a message stateing that the initialization of the words went wrong would be broadcast to the user through std::cout
+or std::cerr.
+
+Q. the classes Movie and Book contain almost identical logic in loading data from the file. 
+	How would you redesign the classes in order not to duplicate that logic?
+
+	I would have them be derived from a class that has methods designed for reading the contents of a textfile into a string, and then 
+rewriting the contents of the string so that all spacing is removed and all the relevant fields are only seperated by a rare character, like a
+dollar sign or something. That string would then be returned by said method/methods and that return would easily be parsed by the child class
+into the specific member resources that they need to fill. My trim method would go in that Parent class that Book and Movie would be derived from
+and so would alot of the substring(), find(), and erase() nonsense. All that the Movie and Book classes would have to do is use stol() and getline()
+to extract the relevant information.
+
+Q. the classes Movie and Book are instantiated from the main() function using a custom constructor, but they also contain a default constructor. 
+Is the default constructor necessary? Could you remove it? Justify your answer.
+
+	You need a default constructor to create an array of an Object. More specifically you need a no argument constructor in order to do that.
+Without the default constructor, it is not possible to create an array of those classes. for example, if I set the default constructor of movie
+to = delete:
+
+Severity	Code	Description	Project	File	Line	Suppression State
+Error	C2280	'sdds::Movie::Movie(void)': attempting to reference a deleted function	OOP345_W5	E:\School\ICP\OOP345\OOP345-Works\Workshops\OOP345_W5\w5_p2.cpp	184	
+
+This is the error that shows up for the logic in main that attempts to create an array of size 5 using the movie class.
+

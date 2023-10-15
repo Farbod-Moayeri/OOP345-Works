@@ -128,16 +128,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="books.txt" />
+    <Text Include="movies.txt" />
     <Text Include="sample_output.txt" />
     <Text Include="words.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Book.cpp" />
+    <ClCompile Include="Movie.cpp" />
     <ClCompile Include="SpellChecker.cpp" />
-    <ClCompile Include="w5_p1.cpp" />
+    <ClCompile Include="w5_p2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Book.h" />
+    <ClInclude Include="Collection.h" />
+    <ClInclude Include="Movie.h" />
     <ClInclude Include="SpellChecker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
