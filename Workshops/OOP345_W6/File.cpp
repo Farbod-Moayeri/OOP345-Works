@@ -24,7 +24,7 @@ namespace sdds {
 	}
 	std::string File::path() const
 	{
-		return m_parent_path;
+		return m_parent_path + m_name;
 	}
 	std::string File::name() const
 	{

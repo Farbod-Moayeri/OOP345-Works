@@ -9,7 +9,6 @@ namespace sdds {
 		std::vector<Resource*> m_contents{};
 		size_t m_count{};
 	public:
-		Directory() = default;
 		Directory(const std::string& directName);
 		virtual void update_parent_path(const std::string& path) override;
 		virtual NodeType type() const override;

@@ -1,3 +1,6 @@
+// Workshop 6 - STL Containers
+// 2021/12/05 - Gideon
+
 #ifndef SDDS_FLAGS_H
 #define SDDS_FLAGS_H
 

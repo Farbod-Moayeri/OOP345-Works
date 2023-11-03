@@ -34,7 +34,7 @@ namespace sdds {
 	}
 	int Directory::count() const
 	{
-		return m_count;
+		return (int)m_count;
 	}
 	size_t Directory::size() const
 	{
@@ -61,12 +61,14 @@ namespace sdds {
 			if (!alreadyExists)
 			{
 				m_contents.push_back(inc);
-				inc = nullptr;
+				m_count++;
+				// inc = nullptr;
 				m_contents.back()->update_parent_path(m_parent_path);
 			}
 			else
 			{
-				throw "EXCEPTION: " << inc->name().c_str() << inc->type() << "already exists in the root\n";
+				std::string err = "EXCEPTION: " + inc->name() + "already exists in the root\n";
+				throw err.c_str();
 			}
 		}
 
@@ -111,7 +113,7 @@ namespace sdds {
 	{
 		for (size_t i = 0u; i < m_count; i++)
 		{
-			
+			m_contents.pop_back();
 		}
 	}
 }

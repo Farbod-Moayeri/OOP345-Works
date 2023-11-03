@@ -129,16 +129,19 @@
   <ItemGroup>
     <ClInclude Include="Directory.h" />
     <ClInclude Include="File.h" />
+    <ClInclude Include="Filesystem.h" />
     <ClInclude Include="Flags.h" />
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="filesystem.txt" />
     <Text Include="sample_output.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
-    <ClCompile Include="w6_p1.cpp" />
+    <ClCompile Include="Filesystem.cpp" />
+    <ClCompile Include="w6_p2.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
