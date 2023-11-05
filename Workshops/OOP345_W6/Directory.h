@@ -24,6 +24,9 @@ namespace sdds {
 		Directory& operator=(const Directory& inc) = delete;
 		Directory(Directory&& inc) = delete;
 		Directory&& operator=(Directory&& inc) = delete;
+
+		void remove(const std::string& name, const std::vector<OpFlags>& inc = std::vector<OpFlags>());
+		void display(std::ostream& ostr, const std::vector<FormatFlags>& inc = std::vector<FormatFlags>()) const;
 	};
 }
 #endif // !SDDS_DIRECTORY_H

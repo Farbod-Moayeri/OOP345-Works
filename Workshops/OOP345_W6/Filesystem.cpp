@@ -39,7 +39,6 @@ namespace sdds {
 		bool isComplete = false;
 		Resource* local = nullptr;
 		Resource* toFind = nullptr;
-		Directory* found = nullptr;
 
 		std::vector<OpFlags> recursiveSearch{};
 		recursiveSearch.push_back(OpFlags::RECURSIVE);
@@ -79,34 +78,39 @@ namespace sdds {
 							}
 							else
 							{
-								delete[] local;
+								delete local;
 								local = nullptr;
+								break;
 							}
-
 						}
 						else
 						{
 							if (!toFind)
+							{	
+								
+								dynamic_cast<Directory*>(toFind)->operator+=(local);
+								local = nullptr;
+								
+							}
+							else
 							{
-								found = dynamic_cast<Directory*>(toFind);
-								if (found)
-								{
-									found->operator+=(local);
-									local = nullptr;
-								}
+								delete local;
+								local = nullptr;
 							}
 						}
 					}
 
 					folderCreated = false;
 
-					temp = trim(firstPart.substr(0, firstPart.find('\n')));
+					temp2 = trim(firstPart.substr(0, firstPart.find('\n')));
 					firstPart.erase(0, firstPart.find('/') + 1);
 
 					if (temp.length() > 0)
 					{
-						local = new File(temp, secondPart);
-						found->operator+=(local);
+						if(toFind == nullptr)
+							toFind = m_root->find(temp, recursiveSearch);
+						local = new File(temp2, secondPart);
+						dynamic_cast<Directory*>(toFind)->operator+=(local);
 						local = nullptr;
 					}
 
@@ -143,6 +147,8 @@ namespace sdds {
 		{
 			m_current->operator+=(inc);
 		}
+
+		return *this;
 	}
 
 	Directory* Filesystem::change_directory(const std::string& name)
@@ -175,5 +181,10 @@ namespace sdds {
 	Directory* Filesystem::get_current_directory() const 
 	{
 		return m_current;
+	}
+
+	Filesystem::~Filesystem()
+	{
+		delete m_root;
 	}
 }

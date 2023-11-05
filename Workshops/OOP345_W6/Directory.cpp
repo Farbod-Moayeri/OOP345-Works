@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <iomanip>
 #include "Directory.h"
 
 namespace sdds {
@@ -5,7 +7,7 @@ namespace sdds {
 	{
 		if (directName.length() > 0)
 		{
-			m_name.assign(directName, 0, directName.length() - 1);
+			m_name.assign(directName, 0, directName.length());
 		}
 	}
 	void Directory::update_parent_path(const std::string& path)
@@ -73,28 +75,34 @@ namespace sdds {
 		}
 
 		return *this;
-		
+
 	}
 	Resource* Directory::find(const std::string& name, const std::vector<OpFlags>& dir) {
 		Resource* temp = nullptr;
 		bool isRecursive = false;
+		bool isFound = false;
 
 		if (!name.empty()) {
-			
+
 			isRecursive = std::find(dir.begin(), dir.end(), OpFlags::RECURSIVE) != dir.end();
 
-			
 			if (isRecursive) {
 				for (size_t i = 0u; i < m_count; i++) {
-					if (m_contents[i]->type() == NodeType::DIR) {
-
-						Directory* dirPtr = dynamic_cast<Directory*>(m_contents[i]);
-						temp = dirPtr->find(name, dir); 
-						
+					if (m_contents[i]->type() == NodeType::DIR) 
+					{
+						if (m_contents[i]->name() == name)
+						{
+							temp = m_contents.data()[i];
+						}
+						else
+						{
+							Directory* dirPtr = dynamic_cast<Directory*>(m_contents[i]);
+							temp = dirPtr->find(name, dir);
+						}
 					}
 					else
 					{
-						if(m_contents[i]->name() == name)
+						if (m_contents[i]->name() == name)
 							temp = m_contents.data()[i];
 					}
 
@@ -103,7 +111,7 @@ namespace sdds {
 					}
 				}
 			}
-			
+
 		}
 
 		return temp;
@@ -111,9 +119,76 @@ namespace sdds {
 
 	Directory::~Directory()
 	{
+		for (auto ptr : m_contents)
+		{
+			delete ptr;
+		}
+	}
+	void Directory::remove(const std::string& name, const std::vector<OpFlags>& inc)
+	{
+		Resource* temp = this->find(name, inc);
+		bool isRecursive = std::find(inc.begin(), inc.end(), OpFlags::RECURSIVE) != inc.end();
+
+		if (temp == nullptr)
+		{
+			throw std::string("Name does not exist in " + name);
+		}
+		else if (temp != nullptr)
+		{
+			if (temp->type() == sdds::NodeType::DIR)
+			{
+				if (isRecursive)
+				{
+					delete temp;
+					temp = nullptr;
+				}
+				else
+				{
+					throw std::invalid_argument(name + " is a directory. Pass the recursive flag to delete directories.");
+				}
+			}
+			else
+			{
+				delete temp;
+				temp = nullptr;
+			}
+			
+		}
+	}
+	void Directory::display(std::ostream& ostr, const std::vector<FormatFlags>& inc) const
+	{
+		ostr << "Total size: " << this->size() << " bytes\n";
+		bool isDir = false;
+		bool isLong = std::find(inc.begin(), inc.end(), sdds::FormatFlags::LONG) != inc.end();
+
 		for (size_t i = 0u; i < m_count; i++)
 		{
-			m_contents.pop_back();
+			isDir = m_contents[i]->type() == sdds::NodeType::DIR;
+
+			if (isDir)
+			{
+				ostr << "D";
+			}
+			else
+			{
+				ostr << "F";
+			}
+
+			ostr << " | " << std::left << std::setw(15) << m_contents[i]->name();
+			// m_contents.size(); 
+			if (isLong)
+			{
+				if (isDir)
+				{
+					ostr << " | " <<  std::right << std::setw(2) << m_contents[i]->count() << " | " << std::right << std::setw(10) << m_contents[i]->size() << " bytes |\n";
+				}
+				else
+				{
+					ostr << " | "  << std::setw(2) << " | " << std::right << std::setw(10) << m_contents[i]->size() << " bytes |\n";
+				}
+
+
+			}
 		}
 	}
 }
