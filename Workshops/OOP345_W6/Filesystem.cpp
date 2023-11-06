@@ -1,3 +1,16 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 6 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-10-05
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
 #include <fstream>
 #include "Resource.h"
 #include "File.h"
@@ -39,92 +52,150 @@ namespace sdds {
 		bool isComplete = false;
 		Resource* local = nullptr;
 		Resource* toFind = nullptr;
+		Resource* tempR = nullptr;
 
 		std::vector<OpFlags> recursiveSearch{};
 		recursiveSearch.push_back(OpFlags::RECURSIVE);
 		
-		m_root = new Directory(contents);
-		m_current = m_root;
+		
+		
+		
+		
 
 		if (!name.empty())
 		{
+			
+
 			std::fstream file(name);
+
 			if (file.is_open())
 			{
+				m_root = new Directory(contents);
+				m_current = m_root;
 				while (file.good() && !isComplete)
 				{
-					std::getline(file, firstPart, '|');
-					std::getline(file, secondPart, '\n');
-
-					firstPart = trim(firstPart);
-					secondPart = trim(secondPart);
-
+				
+					toFind = nullptr;
+					std::getline(file, firstPart, '\n');
+					
+					if (firstPart.find('|') != std::string::npos)
+					{
+						secondPart = firstPart.substr(firstPart.find('|') + 1, firstPart.find('\n'));
+						firstPart.erase(firstPart.find('|'));
+						firstPart = trim(firstPart);
+						secondPart = trim(secondPart);
+					}
+					else
+					{
+						secondPart = "";
+					}
+					
 					while (firstPart.find('/') != std::string::npos)
 					{
-						temp = trim(firstPart.substr(0, firstPart.find('/')));
+						temp2 = temp;
+						temp = trim(firstPart.substr(0, firstPart.find('/') + 1));
+
 						firstPart.erase(0, firstPart.find('/') + 1);
 
-						local = new Directory(temp);
-						toFind = m_root->find(temp, recursiveSearch);
-
-						if (!folderCreated)
+						if (toFind == nullptr)
 						{
-							folderCreated = true;
+							toFind = m_root->find(temp, recursiveSearch);
+							if (toFind != nullptr)
+								continue;
+						}
+					
+						if (toFind == nullptr)
+						{
+							local = new Directory(temp);
+							//local->update_parent_path(m_root->path());
 
-							if (!toFind)
+							if (!folderCreated)
 							{
-								m_root->operator+=(local);
-								local = nullptr;
+								folderCreated = true;
 							}
 							else
 							{
-								delete local;
-								local = nullptr;
-								break;
+								if ((toFind = dynamic_cast<Directory*>(local)->find(temp2, recursiveSearch)) == nullptr)
+								{
+									tempR = new Directory(temp);
+									tempR->update_parent_path(dynamic_cast<Directory*>(local)->name());
+									dynamic_cast<Directory*>(local)->operator+=(tempR);
+									tempR = nullptr;
+								}
+								else
+								{
+									tempR = new Directory(temp);
+									tempR->update_parent_path(dynamic_cast<Directory*>(toFind)->name());
+									dynamic_cast<Directory*>(toFind)->operator+=(tempR);
+									tempR = nullptr;
+								}
 							}
 						}
 						else
 						{
-							if (!toFind)
-							{	
-								
-								dynamic_cast<Directory*>(toFind)->operator+=(local);
-								local = nullptr;
-								
-							}
-							else
-							{
-								delete local;
-								local = nullptr;
-							}
+							tempR = new Directory(temp);
+							tempR->update_parent_path(dynamic_cast<Directory*>(toFind)->path());
+							dynamic_cast<Directory*>(toFind)->operator+=(tempR);
+							tempR = nullptr;
+							toFind = nullptr;
 						}
 					}
 
-					folderCreated = false;
-
-					temp2 = trim(firstPart.substr(0, firstPart.find('\n')));
-					firstPart.erase(0, firstPart.find('/') + 1);
-
-					if (temp.length() > 0)
+					if (!secondPart.empty())
 					{
-						if(toFind == nullptr)
-							toFind = m_root->find(temp, recursiveSearch);
-						local = new File(temp2, secondPart);
-						dynamic_cast<Directory*>(toFind)->operator+=(local);
-						local = nullptr;
+						temp2 = temp;
+						temp = trim(firstPart.substr(0, firstPart.find('\n')));
+						firstPart.erase();
+
+						if (!temp.empty())
+						{
+							if (local != nullptr)
+							{
+								tempR = new File(temp, secondPart);
+								tempR->update_parent_path(local->path());
+								dynamic_cast<Directory*>(local)->operator+=(tempR);
+								tempR = nullptr;
+
+							}
+							else 
+							{
+								if ((toFind = m_root->find(temp2, recursiveSearch)) != nullptr)
+								{
+									tempR = new File(temp, secondPart);
+									tempR->update_parent_path(toFind->path());
+									dynamic_cast<Directory*>(toFind)->operator+=(tempR);
+									tempR = nullptr;
+								}
+								else
+								{
+									m_root->operator+=(new File(temp, secondPart));
+								}
+							}
+						}
 					}
-
-
-
+					
+					if(folderCreated)
+						m_root->operator+=(local);
+						
+					folderCreated = false;
+					local = nullptr;
+					temp = "";
 				}
 			}
+			else
+			{
+				throw "Filesystem not created with invalid filename.\n";
+			}
+
+			if (file.is_open())
+				file.close();
 		}
 		
 	}
 
 	Filesystem::Filesystem(Filesystem&& inc)
 	{
-		std::move(inc);
+		*this = std::move(inc);
 	}
 
 	Filesystem& Filesystem::operator=(Filesystem&& inc)
@@ -160,6 +231,7 @@ namespace sdds {
 		if (name.empty())
 		{
 			m_current = m_root;
+			local = m_root;
 		}
 		else
 		{

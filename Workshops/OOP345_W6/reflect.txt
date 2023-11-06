@@ -1,0 +1,41 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 6 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-10-01
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
+
+Q. Why do you need to deallocate the dynamically allocated memory in your vector of resources?
+
+Because the dynamically allocated memory is from the heap, and if you take resources from the heap, you need to free them.
+If you do not free them, once the variables that hold the access to that memory falls out of scope, you lose access to the memory.
+Thats why you need to deallocate it. That memory is not from the stack, it does not automatically get deallocated once your program
+stops running. You must manually deallocate it before your program stops running, otherwise you will lose access to the memory
+addresses that you were using and so will your computer until it is restarted.
+
+Q. To call specific functions for a Directory objects stored in a Resource*, what special C++ operation did you have to do and why?
+
+You must dynamically cast the Resource pointer into a Directory pointer in order to call Directory methods through the Resource pointer.
+You had to do this because at compilation, the compiler doesn't understand that the Resource pointer will be storing a Directory address
+at runtime. So the compiler will only allow you to use Resource methods, even though the address at runtime will be that of a Directory.
+To combat this problem and allow yourself to use Directory methods using a resource pointer, you must use the operation:
+
+dynamic_cast<Directory*>(local)->operator+=(tempR);
+
+this is a snippet of my code where I used this operation. local is a Resource*, which I cant use the operator+= at compile time.
+So I use a dynamic_cast so the compiler allows the use of Directory methods, which is called downcasting. Its called downcasting because
+im casting a base class pointer into its derived class pointer.
+
+Q. In this workshop you had to use std::vector<sdds::Resource*> to store a collection of filesystem resources as pointers. Could you have used std::vector<sdds::Resource> instead? Justify your answer!
+
+Well thats easy, if the vector only stores Resource instead of Resource*, we wouldn't be able to store File's and Directories as that is polymorphic behaviour that
+is only relegated to runtime. So basically we would have a vector that could only store a virtual class. Which is worthless. Also, even if you tried to assign a
+File to a Resource Vector, it would just be subject to object slicing as the vector cant store the additional data that a File or Directory has, only its base class
+derivative.
