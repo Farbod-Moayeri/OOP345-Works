@@ -1,3 +1,11 @@
+// Name: Farbod Moayeri
+// Seneca Student ID:
+// Seneca email: fmoayeri2@outlook.ca
+// Date of completion: 2023/11/07
+//
+// I confirm that I am the only author of this file
+//   and the content was created entirely by me.
+
 #ifndef SDDS_UTILITIES_H
 #define SDDS_UTILITIES_H
 
