@@ -1,5 +1,6 @@
 #include <iomanip>
 #include <fstream>
+#include <algorithm>
 #include "CovidCollection.h"
 
 namespace sdds {
@@ -50,11 +51,144 @@ namespace sdds {
 		}
 	}
 
-	void CovidCollection::display(std::ostream& ostr) const
+	void CovidCollection::display(std::ostream& out, const std::string& country) const
 	{
-		for (const auto& record : m_covidCollection) {
-			ostr << record << '\n';
+		if (country == "ALL")
+		{
+			for (const auto& record : m_covidCollection) {
+				out << record << '\n';
+			}
 		}
+		else
+		{
+			for (const auto& record : m_covidCollection) {
+				if (record.m_country == country)
+				{
+					out << record << '\n';
+				}
+
+			}
+		}
+		
+	}
+
+	void CovidCollection::sort(const std::string& field)
+	{
+		if (field == "country")
+		{
+			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& inc1, const Covid& inc2) {
+				if (inc1.m_country < inc2.m_country)
+				{
+					return true;
+				}
+				else if (inc1.m_country > inc2.m_country || inc1.m_country == inc2.m_country)
+				{
+					return inc1.m_numDeaths < inc2.m_numDeaths;
+				}
+
+				return false;
+				
+			});
+		}
+		else if (field == "city") 
+		{
+			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& inc1, const Covid& inc2) {
+				if (inc1.m_city < inc2.m_city)
+				{
+					return true;
+				}
+				else if (inc1.m_city > inc2.m_city || inc1.m_city == inc2.m_city)
+				{
+					return inc1.m_numDeaths < inc2.m_numDeaths;
+				}
+
+				return false;
+			});
+		}
+		else if (field == "variant")
+		{
+			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& inc1, const Covid& inc2) {
+				if (inc1.m_variant < inc2.m_variant)
+				{
+					return true;
+				}
+				else if (inc1.m_variant > inc2.m_variant || inc1.m_variant == inc2.m_variant)
+				{
+					return inc1.m_numDeaths < inc2.m_numDeaths;
+				}
+
+				return false;
+			});
+		}
+		else if (field == "general")
+		{
+			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& inc1, const Covid& inc2) {
+				if (inc1.m_general < inc2.m_general)
+				{
+					return true;
+				}
+				else if (inc1.m_general > inc2.m_general || inc1.m_general == inc2.m_general)
+				{
+					return inc1.m_numDeaths < inc2.m_numDeaths;
+				}
+				
+
+				return false;
+			});
+		}
+		else if (field == "deaths")
+		{
+			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& inc1, const Covid& inc2) {
+				if (inc1.m_numDeaths < inc2.m_numDeaths)
+				{
+					return true;
+				}
+				else if (inc1.m_numDeaths > inc2.m_numDeaths || inc1.m_numDeaths == inc2.m_numDeaths)
+				{
+					return false;
+				}
+
+				return false;
+			});
+		}
+		else if (field == "cases")
+		{
+			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& inc1, const Covid& inc2) {
+				if (inc1.m_numCases < inc2.m_numCases)
+				{
+					return true;
+				}
+				else if (inc1.m_numCases > inc2.m_numCases || inc1.m_numCases == inc2.m_numCases)
+				{
+					return false;
+				}
+
+				return false;
+			});
+		}
+	}
+
+	bool CovidCollection::inCollection(const std::string& variant, const std::string& country, unsigned int deaths) const
+	{
+
+		if (std::find(m_covidCollection.begin(), m_covidCollection.end(), [variant, country, deaths](const Covid& inc1) {
+
+			}) != m_covidCollection.end())
+		{
+			return true;
+		}
+		
+		return false;
+	}
+
+	std::list<Covid> CovidCollection::getListForDeaths(unsigned int deaths) const
+	{
+		return std::list<Covid>();
+	}
+
+	void CovidCollection::updateStatus()
+	{
+
 	}
 
 	std::ostream& operator<<(std::ostream& ostr, const Covid& inc) {
