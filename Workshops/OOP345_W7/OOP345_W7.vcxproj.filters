@@ -23,10 +23,10 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="w7_p1.cpp">
+    <ClCompile Include="CovidCollection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CovidCollection.cpp">
+    <ClCompile Include="w7_p2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

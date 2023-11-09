@@ -1,3 +1,16 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 7 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-10-05
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
 #ifndef SDDS_COVIDCOLLECTION_H
 #define SDDS_COVIDCOLLECTION_H
 
@@ -13,7 +26,9 @@ namespace sdds {
 		int m_year{};
 		unsigned m_numCases{};
 		unsigned m_numDeaths{};
-		std::string m_general{};
+		std::string m_status{"General"};
+
+		bool operator==(const Covid& inc) const;
 	};
 
 	class CovidCollection {
