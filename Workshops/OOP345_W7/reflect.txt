@@ -1,0 +1,84 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 7 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-11-09
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
+
+Q. list all the STL functions that you have used in this workshop; explain your reasoning for choosing each one, and not another.
+
+I used std::find_if because I needed to find an element based on a condition:
+
+bool CovidCollection::inCollection(const std::string& variant, const std::string& country, unsigned int deaths) const
+{
+	if (std::find_if(m_covidCollection.begin(), m_covidCollection.end(), [variant, country, deaths](const Covid& inc1) {
+		return inc1.m_country == country && inc1.m_variant == variant && inc1.m_numDeaths > deaths;
+		}) != m_covidCollection.end())
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+This method searches the m_covidCollection method element by element for an element that fulfills the requirements within the lambda function I feed as the third parameter to the find_if method.
+
+I also used std::sort either with a simple unnammed lambda function or a general use lambda function that has an identifier:
+
+void CovidCollection::sort(const std::string& field) {
+	auto byField = [field](const Covid& a, const Covid& b) -> bool {
+		if (field == "country") return a.m_country < b.m_country;
+		if (field == "city") return a.m_city < b.m_city;
+		if (field == "variant") return a.m_variant < b.m_variant;
+		if (field == "general") return a.m_status < b.m_status;
+		return false; 
+	};
+
+	if (field == "deaths") {
+		std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& a, const Covid& b) {
+			return a.m_numDeaths < b.m_numDeaths;
+			});
+	}
+	else if (field == "cases") {
+		std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& a, const Covid& b) {
+			return a.m_numCases < b.m_numCases;
+			});
+	}
+	else {			
+		std::sort(m_covidCollection.begin(), m_covidCollection.end(), [byField](const Covid& a, const Covid& b) {
+			if (byField(a, b)) return true;
+			if (byField(b, a)) return false;
+			return a.m_numDeaths < b.m_numDeaths; 
+			});
+		}
+	}
+	
+}
+
+This method uses the sort method to rearrange the m_covidCollection vector using a lambda function that is fed as the third parameter to the std::sort method. The byField lambda function is used to for every field
+tbat isnt cases and deaths as a general part of the searching algorithm that sort will use. 
+
+Q. present the advantages of using STL algorithms vs. implementing the functionality by yourself using loops.
+
+Advantages of STL algorithms:
+- Those STL algorithms already exist and are very well tested and have good performance
+- Allows me to save time by not reinventing the wheel
+- Reduces chances of debugging hell, as I might not be as good as creating a proper algorithm from scratch
+
+Advantages of implementing it myself:
+- I know exactly whats going on under the hood
+- I can make very specific functionality that I couldnt otherwise have using STL algorithms
+
+Q. the function that sorts the collection of objects receives as a parameter the field name to use; this can create errors if the client specifies an invalid field (or misspells it). 
+How would you redesign that function to prevent the client from specifying an invalid string, allowing any error to be detected by the compiler?
+
+First of all I would make the sort function just throw an error when the field in the parameter doesnt make sense at all. I would also use a custom method to turn the parameter string to lowercase 
+and trim all whitespace from it to further make sure that a match is more easily found. Once the parameter has been converted to lowercase and trimmed, and there still isnt a match, an error would be thrown or I could just
+make sort not do anything.

@@ -140,7 +140,7 @@ namespace sdds {
 
 	bool CovidCollection::inCollection(const std::string& variant, const std::string& country, unsigned int deaths) const
 	{
-
+		
 		if (std::find_if(m_covidCollection.begin(), m_covidCollection.end(), [variant, country, deaths](const Covid& inc1) {
 			return inc1.m_country == country && inc1.m_variant == variant && inc1.m_numDeaths > deaths;
 			}) != m_covidCollection.end())
