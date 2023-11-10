@@ -64,49 +64,57 @@ namespace sdds {
 		}
 	}
 
-	void CovidCollection::display(std::ostream& out, const std::string& country) const
-	{
-		unsigned deaths{};
-		unsigned cases{};
+	void CovidCollection::display(std::ostream& out, const std::string& country) const {
+		unsigned totalDeaths{};
+		unsigned totalCases{};
 		unsigned countryDeaths{};
 		unsigned countryCases{};
 		std::string temp{};
 
-		if (country == "ALL")
-		{
-			for (const auto& record : m_covidCollection) {
-				out << record << '\n';
-				deaths += record.m_numDeaths;
-				cases += record.m_numCases;
-			}
-			temp = "Total cases around the world: " + std::to_string(cases) + " |" + '\n';
-			out << "| " << std::setw(87) << temp;
-			temp = "Total deaths around the world: " + std::to_string(deaths) + " |" + '\n';
-			out << "| " << std::setw(87) << temp;
-		}
-		else
-		{
-			out << "Displaying information of country = " << country << "\n";
-			for (const auto& record : m_covidCollection) {
-				countryDeaths += record.m_numDeaths;
-				countryCases += record.m_numCases;
-				if (record.m_country == country)
-				{
-					out << record << '\n';
-					deaths += record.m_numDeaths;
-					cases += record.m_numCases;
-				}				
-			}
-			out << std::setfill('-') << std::setw(89) << '\n' << std::setfill(' ');
-			temp = "Total cases around the world: " + std::to_string(cases) + " |" + '\n';
-			out << "| " << std::setw(87) << temp;
-			temp = "Total deaths around the world: " + std::to_string(deaths) + " |" + '\n';
-			out << "| " << std::setw(87) << temp;
-			temp = country + " has " + std::to_string((double)cases / countryCases * 100) + " of global cases and " + std::to_string((double)deaths / countryDeaths * 100) + " of global deaths" + " |" + '\n';
-			out << "| " << std::setw(87) << temp;
-		}
 		
+		std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
+			[&](const Covid& record) {
+				totalDeaths += record.m_numDeaths;
+				totalCases += record.m_numCases;
+			});
+
+		if (country == "ALL") {
+			std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
+				[&out](const Covid& record) {
+					out << record << '\n';
+				});
+		}
+		else {
+			// trying to follow silly rule of each algorithm only doing one thing at a time
+			std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
+				[&](const Covid& record) {
+					if (record.m_country == country) {
+						countryDeaths += record.m_numDeaths;
+						countryCases += record.m_numCases;
+					}
+				});
+			std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
+				[&](const Covid& record) {
+					if (record.m_country == country) {
+						out << record << '\n';
+					}
+				});
+			out << std::setfill('-') << std::setw(89) << '\n' << std::setfill(' ');
+		}
+
+		
+		temp = "Total cases around the world: " + std::to_string(totalCases) + " |" + '\n';
+		out << "| " << std::setw(87) << temp;
+		temp = "Total deaths around the world: " + std::to_string(totalDeaths) + " |" + '\n';
+		out << "| " << std::setw(87) << temp;
+
+		if (country != "ALL") {
+			temp = country + " has " + std::to_string(static_cast<double>(countryCases) / totalCases * 100) + "% of global cases and "
+				+ std::to_string(static_cast<double>(countryDeaths) / totalDeaths * 100) + "% of global deaths |" + '\n';
+			out << "| " << std::setw(87) << temp;
+		}
 	}
+
 
 	void CovidCollection::sort(const std::string& field) {
 		auto byField = [field](const Covid& a, const Covid& b) -> bool {
@@ -155,21 +163,22 @@ namespace sdds {
 	{
 		std::list<Covid> list{};
 
-		for (const auto& item : m_covidCollection)
-		{
+		auto addToList = [&](const Covid& item) {
 			if (item.m_numDeaths >= deaths)
 			{
 				list.push_back(item);
 			}
-		}
+		};
+		
+		std::for_each(m_covidCollection.begin(), m_covidCollection.end(), addToList);
 
 		return list;
 	}
 
 	void CovidCollection::updateStatus()
 	{
-		for (auto& item : m_covidCollection)
-		{
+		std::for_each(m_covidCollection.begin(), m_covidCollection.end(), [](Covid& item) {
+			
 			if (item.m_numDeaths > 300)
 			{
 				item.m_status.assign("EPIDEMIC");
@@ -182,7 +191,7 @@ namespace sdds {
 			{
 				item.m_status.assign("MILD");
 			}
-		}
+		});
 	}
 
 	std::ostream& operator<<(std::ostream& ostr, const Covid& inc) {
