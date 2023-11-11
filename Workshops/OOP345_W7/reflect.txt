@@ -30,40 +30,168 @@ bool CovidCollection::inCollection(const std::string& variant, const std::string
 
 This method searches the m_covidCollection method element by element for an element that fulfills the requirements within the lambda function I feed as the third parameter to the find_if method.
 
-I also used std::sort either with a simple unnammed lambda function or a general use lambda function that has an identifier:
+I also used std::stable_sort with a simple unnammed lambda function:
 
 void CovidCollection::sort(const std::string& field) {
-	auto byField = [field](const Covid& a, const Covid& b) -> bool {
-		if (field == "country") return a.m_country < b.m_country;
-		if (field == "city") return a.m_city < b.m_city;
-		if (field == "variant") return a.m_variant < b.m_variant;
-		if (field == "general") return a.m_status < b.m_status;
-		return false; 
-	};
+	std::stable_sort(m_covidCollection.begin(), m_covidCollection.end(),
+		[field](const Covid& a, const Covid& b) {
+			if (field == "country") {
+				if (a.m_country != b.m_country) {
+					return a.m_country < b.m_country;
+				}
+			}
+			else if (field == "city") {
+				if (a.m_city != b.m_city) {
+					return a.m_city < b.m_city;
+				}
+			}
+			else if (field == "variant") {
+				if (a.m_variant != b.m_variant) {
+					return a.m_variant < b.m_variant;
+				}
+			}
+			else if (field == "general") {
+				if (a.m_status != b.m_status) {
+					return a.m_status < b.m_status;
+				}
+			}
+			else if (field == "cases") {
+				if (a.m_numCases != b.m_numCases) {
+					return a.m_numCases < b.m_numCases;
+				}
+			}
+			else if (field == "year") {
+				if (a.m_year != b.m_year) {
+					return a.m_year < b.m_year;
+				}
+			}
 
-	if (field == "deaths") {
-		std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& a, const Covid& b) {
+			
 			return a.m_numDeaths < b.m_numDeaths;
-			});
-	}
-	else if (field == "cases") {
-		std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& a, const Covid& b) {
-			return a.m_numCases < b.m_numCases;
-			});
-	}
-	else {			
-		std::sort(m_covidCollection.begin(), m_covidCollection.end(), [byField](const Covid& a, const Covid& b) {
-			if (byField(a, b)) return true;
-			if (byField(b, a)) return false;
-			return a.m_numDeaths < b.m_numDeaths; 
-			});
-		}
-	}
-	
+	});
+}
+This method uses the sort method to rearrange the m_covidCollection vector using a lambda function that is fed as the third parameter to the std::sort method. 
+I had to use stable_sort instead of sort because my output would not match the correct output as the algorithm would displace two elements when the sorting conditions
+were not met. The difference between the two is that sort is an unstable sorting algorithm while stable_sort is a stable one. The way this changes their behaviour is that when two elements are
+considered equivalent, the unstable sort decides to move them but the stable sort does not.
+
+I used std::copy_if for the getListForDeaths method.
+
+std::list<Covid> CovidCollection::getListForDeaths(unsigned int deaths) const {
+	std::list<Covid> list;
+
+	std::back_insert_iterator<std::list<Covid>> backIt(list);
+
+	std::copy_if(m_covidCollection.begin(), m_covidCollection.end(), backIt,
+		[deaths](const Covid& item) {
+			return item.m_numDeaths >= deaths;
+		});
+
+	return list;
 }
 
-This method uses the sort method to rearrange the m_covidCollection vector using a lambda function that is fed as the third parameter to the std::sort method. The byField lambda function is used to for every field
-tbat isnt cases and deaths as a general part of the searching algorithm that sort will use. 
+I used the copy_if algorithm because I simply needed a list of Covid's that were from the original list of Covid's and copy_if suited my purposes. I gave it a simple lambda and a back_insert_iterator
+so it knew where to insert the Covid to, it knew where the back of the list was to copy it to. and then I returned the list.
+
+I used std::for_each for the updateStatus method.
+
+void CovidCollection::updateStatus()
+{
+	std::for_each(m_covidCollection.begin(), m_covidCollection.end(), [](Covid& item) {
+		
+		if (item.m_numDeaths > 300)
+		{
+			item.m_status.assign("EPIDEMIC");
+		}
+		else if (item.m_numDeaths < 50)
+		{
+			item.m_status.assign("EARLY");
+		}
+		else
+		{
+			item.m_status.assign("MILD");
+		}
+	});
+}
+
+I used for_each because all I needed to do to fulfill this methods purpose was to iterate over the entire vector and change one elements value per object depending on a condition. 
+Which for_each is perfect for.
+
+Finally for the display method I used for_each, accumulate, and copy_if.
+
+void CovidCollection::display(std::ostream& out, const std::string& country) const {
+		
+		unsigned countryDeaths{};
+		unsigned countryCases{};
+		std::string temp;
+
+		unsigned totalDeaths = std::accumulate(m_covidCollection.begin(), m_covidCollection.end(), 0u,
+			[](unsigned sum, const Covid& record) {
+				return sum + record.m_numDeaths;
+			});
+		unsigned totalCases = std::accumulate(m_covidCollection.begin(), m_covidCollection.end(), 0u,
+			[](unsigned sum, const Covid& record) {
+				return sum + record.m_numCases;
+			});
+
+		
+		if (country == "ALL") {
+			std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
+				[&out](const Covid& record) {
+					out << record << '\n';
+				});
+		}
+		else {
+			
+			out << "Displaying information of country = " << country << "\n";
+			std::vector<Covid> filteredRecords;
+			std::copy_if(m_covidCollection.begin(), m_covidCollection.end(), std::back_inserter(filteredRecords),
+				[country](const Covid& record) {
+					return record.m_country == country;
+				});
+
+			
+			countryDeaths = std::accumulate(filteredRecords.begin(), filteredRecords.end(), 0u,
+				[](unsigned sum, const Covid& record) {
+					return sum + record.m_numDeaths;
+				});
+			countryCases = std::accumulate(filteredRecords.begin(), filteredRecords.end(), 0u,
+				[](unsigned sum, const Covid& record) {
+					return sum + record.m_numCases;
+				});
+
+			
+			std::for_each(filteredRecords.begin(), filteredRecords.end(),
+				[&out](const Covid& record) {
+					out << record << '\n';
+				});
+
+			out << std::setfill('-') << std::setw(89) << '\n' << std::setfill(' ');
+		}
+
+		
+		
+		
+		if (country == "ALL") {
+			temp = "Total cases around the world: " + std::to_string(totalCases) + " |" + '\n';
+			out << "| " << std::setw(87) << temp;
+			temp = "Total deaths around the world: " + std::to_string(totalDeaths) + " |" + '\n';
+			out << "| " << std::setw(87) << temp;
+		}
+		else
+		{
+			temp = "Total cases in " + country + ": " + std::to_string(countryCases) + " |" + '\n';
+			out << "| " << std::setw(87) << temp;
+			temp = "Total deaths in " + country + ": " + std::to_string(countryDeaths) + " |" + '\n';
+			out << "| " << std::setw(87) << temp;
+			temp = country + " has " + std::to_string(static_cast<double>(countryCases) / totalCases * 100) + "% of global cases and "
+				+ std::to_string(static_cast<double>(countryDeaths) / totalDeaths * 100) + "% of global deaths |" + '\n';
+			out << "| " << std::setw(87) << temp;
+		}
+	}
+
+Because of the silly rule that prevented me from capturing by reference, the only method I could use that would output the cases or deaths was the accumulate method. I also had to reuse methods cause I didnt
+see any other way of making this method work otherwise.
 
 Q. present the advantages of using STL algorithms vs. implementing the functionality by yourself using loops.
 

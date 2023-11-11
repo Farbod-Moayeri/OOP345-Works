@@ -14,6 +14,7 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
+#include <numeric>
 #include "CovidCollection.h"
 
 namespace sdds {
@@ -65,19 +66,21 @@ namespace sdds {
 	}
 
 	void CovidCollection::display(std::ostream& out, const std::string& country) const {
-		unsigned totalDeaths{};
-		unsigned totalCases{};
+		
 		unsigned countryDeaths{};
 		unsigned countryCases{};
-		std::string temp{};
+		std::string temp;
 
-		
-		std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
-			[&](const Covid& record) {
-				totalDeaths += record.m_numDeaths;
-				totalCases += record.m_numCases;
+		unsigned totalDeaths = std::accumulate(m_covidCollection.begin(), m_covidCollection.end(), 0u,
+			[](unsigned sum, const Covid& record) {
+				return sum + record.m_numDeaths;
+			});
+		unsigned totalCases = std::accumulate(m_covidCollection.begin(), m_covidCollection.end(), 0u,
+			[](unsigned sum, const Covid& record) {
+				return sum + record.m_numCases;
 			});
 
+		
 		if (country == "ALL") {
 			std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
 				[&out](const Covid& record) {
@@ -85,30 +88,48 @@ namespace sdds {
 				});
 		}
 		else {
-			// trying to follow silly rule of each algorithm only doing one thing at a time
-			std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
-				[&](const Covid& record) {
-					if (record.m_country == country) {
-						countryDeaths += record.m_numDeaths;
-						countryCases += record.m_numCases;
-					}
+			
+			out << "Displaying information of country = " << country << "\n";
+			std::vector<Covid> filteredRecords;
+			std::copy_if(m_covidCollection.begin(), m_covidCollection.end(), std::back_inserter(filteredRecords),
+				[country](const Covid& record) {
+					return record.m_country == country;
 				});
-			std::for_each(m_covidCollection.begin(), m_covidCollection.end(),
-				[&](const Covid& record) {
-					if (record.m_country == country) {
-						out << record << '\n';
-					}
+
+			
+			countryDeaths = std::accumulate(filteredRecords.begin(), filteredRecords.end(), 0u,
+				[](unsigned sum, const Covid& record) {
+					return sum + record.m_numDeaths;
 				});
+			countryCases = std::accumulate(filteredRecords.begin(), filteredRecords.end(), 0u,
+				[](unsigned sum, const Covid& record) {
+					return sum + record.m_numCases;
+				});
+
+			
+			std::for_each(filteredRecords.begin(), filteredRecords.end(),
+				[&out](const Covid& record) {
+					out << record << '\n';
+				});
+
 			out << std::setfill('-') << std::setw(89) << '\n' << std::setfill(' ');
 		}
 
 		
-		temp = "Total cases around the world: " + std::to_string(totalCases) + " |" + '\n';
-		out << "| " << std::setw(87) << temp;
-		temp = "Total deaths around the world: " + std::to_string(totalDeaths) + " |" + '\n';
-		out << "| " << std::setw(87) << temp;
-
-		if (country != "ALL") {
+		
+		
+		if (country == "ALL") {
+			temp = "Total cases around the world: " + std::to_string(totalCases) + " |" + '\n';
+			out << "| " << std::setw(87) << temp;
+			temp = "Total deaths around the world: " + std::to_string(totalDeaths) + " |" + '\n';
+			out << "| " << std::setw(87) << temp;
+		}
+		else
+		{
+			temp = "Total cases in " + country + ": " + std::to_string(countryCases) + " |" + '\n';
+			out << "| " << std::setw(87) << temp;
+			temp = "Total deaths in " + country + ": " + std::to_string(countryDeaths) + " |" + '\n';
+			out << "| " << std::setw(87) << temp;
 			temp = country + " has " + std::to_string(static_cast<double>(countryCases) / totalCases * 100) + "% of global cases and "
 				+ std::to_string(static_cast<double>(countryDeaths) / totalDeaths * 100) + "% of global deaths |" + '\n';
 			out << "| " << std::setw(87) << temp;
@@ -117,33 +138,45 @@ namespace sdds {
 
 
 	void CovidCollection::sort(const std::string& field) {
-		auto byField = [field](const Covid& a, const Covid& b) -> bool {
-			if (field == "country") return a.m_country < b.m_country;
-			if (field == "city") return a.m_city < b.m_city;
-			if (field == "variant") return a.m_variant < b.m_variant;
-			if (field == "general") return a.m_status < b.m_status;
-			return false; 
-		};
+		std::stable_sort(m_covidCollection.begin(), m_covidCollection.end(),
+			[field](const Covid& a, const Covid& b) {
+				if (field == "country") {
+					if (a.m_country != b.m_country) {
+						return a.m_country < b.m_country;
+					}
+				}
+				else if (field == "city") {
+					if (a.m_city != b.m_city) {
+						return a.m_city < b.m_city;
+					}
+				}
+				else if (field == "variant") {
+					if (a.m_variant != b.m_variant) {
+						return a.m_variant < b.m_variant;
+					}
+				}
+				else if (field == "general") {
+					if (a.m_status != b.m_status) {
+						return a.m_status < b.m_status;
+					}
+				}
+				else if (field == "cases") {
+					if (a.m_numCases != b.m_numCases) {
+						return a.m_numCases < b.m_numCases;
+					}
+				}
+				else if (field == "year") {
+					if (a.m_year != b.m_year) {
+						return a.m_year < b.m_year;
+					}
+				}
 
-		if (field == "deaths") {
-			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& a, const Covid& b) {
+				
 				return a.m_numDeaths < b.m_numDeaths;
-				});
-		}
-		else if (field == "cases") {
-			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [](const Covid& a, const Covid& b) {
-				return a.m_numCases < b.m_numCases;
-				});
-		}
-		else {
-			
-			std::sort(m_covidCollection.begin(), m_covidCollection.end(), [byField](const Covid& a, const Covid& b) {
-				if (byField(a, b)) return true;
-				if (byField(b, a)) return false;
-				return a.m_numDeaths < b.m_numDeaths; 
-				});
-		}
+			});
 	}
+
+
 
 
 	bool CovidCollection::inCollection(const std::string& variant, const std::string& country, unsigned int deaths) const
@@ -159,21 +192,19 @@ namespace sdds {
 		return false;
 	}
 
-	std::list<Covid> CovidCollection::getListForDeaths(unsigned int deaths) const
-	{
-		std::list<Covid> list{};
+	std::list<Covid> CovidCollection::getListForDeaths(unsigned int deaths) const {
+		std::list<Covid> list;
 
-		auto addToList = [&](const Covid& item) {
-			if (item.m_numDeaths >= deaths)
-			{
-				list.push_back(item);
-			}
-		};
-		
-		std::for_each(m_covidCollection.begin(), m_covidCollection.end(), addToList);
+		std::back_insert_iterator<std::list<Covid>> backIt(list);
+
+		std::copy_if(m_covidCollection.begin(), m_covidCollection.end(), backIt,
+			[deaths](const Covid& item) {
+				return item.m_numDeaths >= deaths;
+			});
 
 		return list;
 	}
+
 
 	void CovidCollection::updateStatus()
 	{
