@@ -53,14 +53,14 @@ namespace sdds {
 
 		T& operator+=(const T* inc) {
 
-			database.push_back(*inc);
+			database.push_back(std::move(* inc));
 
 			return database.back();
 		}
 
 		T& operator+=(std::shared_ptr<T> inc) {
 
-			database.push_back(*inc);
+			database.push_back(std::move(* inc));
 
 			return database.back();
 		}

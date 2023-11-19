@@ -1,3 +1,16 @@
+///////////////////////////////////////////////////////
+//                  WorkShop 8 - Part 2
+// Name: Farbod Moayeri
+// Id: 134395227
+// Email: fmoayeri2@myseneca.ca
+// Section: NFF
+// Date: 2023-10-05
+///////////////////////////////////////////////////////
+// I have done all the coding by myself and only copied
+// the code that my professor provided to complete my 
+// workshops and assignments.
+///////////////////////////////////////////////////////
+
 // Workshop 8 - Smart Pointers
 
 #ifndef SDDS_PROFILE_H
@@ -94,7 +107,7 @@ namespace sdds {
 			
 			std::regex postalCodePattern("^[A-Z]\\d[A-Z] \\d[A-Z]\\d$");
 			if (!std::regex_match(m_address.postal_code, postalCodePattern)) {
-				throw std::invalid_argument("Postal code does not follow the ANA NAN format.");
+				throw std::string("*** Invalid Address ***");
 			}
 		}
 
