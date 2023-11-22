@@ -53,10 +53,19 @@ namespace sdds
 		//         memory for "data".
 		//       The file is binary and has the format described in the specs.
 
+		std::fstream file(filename, std::ios::in|std::ios::binary);
+
+		if (file)
+		{
+			file.read((char*) total_items, sizeof(int));
+
+			data = new int[total_items];
+
+			file.read((char*)data, sizeof(int) * total_items);
+		}
 
 
-
-
+		file.close();
 
 		std::cout << "Item's count in file '"<< filename << "': " << total_items << std::endl;
 		std::cout << "  [" << data[0] << ", " << data[1] << ", " << data[2] << ", ... , "
@@ -82,6 +91,32 @@ namespace sdds
 
 	ProcessData::operator bool() const {
 		return total_items > 0 && data;
+	}
+
+	int ProcessData::operator()(const std::string& target_file, double& avg, double& var)
+	{
+
+		if (data != nullptr)
+		{
+			computeAvgFactor(data, total_items, total_items, avg);
+			computeVarFactor(data, total_items, total_items, avg, var);
+		}
+
+		std::fstream file(target_file, std::ios::out|std::ios::binary);
+
+		if (file)
+		{
+			file.write((char*)total_items, sizeof(int));
+
+			file.write((char*)data, sizeof(int) * total_items);
+
+		}
+		else
+		{
+			throw std::string("Exception");
+		}
+
+		file.close();
 	}
 
 	// TODO Improve operator() function from part-1 for multi-threaded operation. Enhance the  
