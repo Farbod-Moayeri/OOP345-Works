@@ -75,13 +75,13 @@ namespace sdds
 
 		// Following statements initialize the variables added for multi-threaded 
 		//   computation
-		/*num_threads = n_threads; 
+		num_threads = n_threads; 
 		averages = new double[num_threads] {};
 		variances = new double[num_threads] {};
 		p_indices = new int[num_threads+1] {};
 		for (int i = 0; i < num_threads; i++)
 			p_indices[i] = i * (total_items / num_threads);
-		p_indices[num_threads] = total_items;*/
+		p_indices[num_threads] = total_items;
 	}
 	ProcessData::~ProcessData() {
 		delete[] data;
@@ -97,9 +97,19 @@ namespace sdds
 	int ProcessData::operator()(const std::string& target_file, double& avg, double& var)
 	{
 
-		if (data != nullptr)
+		if (data != nullptr && num_threads > 0)
 		{
-			computeAvgFactor(data, total_items, total_items, avg);
+			double tempAvg{};
+			auto compute = std::bind(computeAvgFactor, std::placeholders::_1, std::placeholders::_2, total_items, std::placeholders::_3);
+
+			std::thread* threads = new std::thread[total_items];
+			for (auto i = 0; i < total_items; i++)
+			{
+				threads[i](compute(data[i], p_indices[i], tempAvg));
+				avg += tempAvg;
+			}
+
+
 			computeVarFactor(data, total_items, total_items, avg, var);
 		}
 
@@ -137,6 +147,68 @@ namespace sdds
 
 
 
+	int ProcessData::operator()(const std::string& target_file, double& total_avg, double& total_var) {
+		if (!data) return 0;  
+
+		
+		std::vector<std::thread> threads;
+		threads.reserve(num_threads);
+
+		double tempAvg{};
+		double totalAvg{};
+
+		auto computeAvg = std::bind(computeAvgFactor, std::placeholders::_1, std::placeholders::_2, total_items, std::ref(std::placeholders::_3));
+
+		for (int i = 0; i < num_threads; ++i) {
+			int partition_size = p_indices[i + 1] - p_indices[i];
+			/*auto computeAvg = std::bind(computeAvgFactor, data + p_indices[i], partition_size, total_items, std::ref(averages[i]));*/
+
+			threads.emplace_back(computeAvg(data + p_indices[i], partition_size, tempAvg));
+		}
+
+		
+		for (auto& t : threads) {
+			t.join();
+		}
+
+		
+		total_avg = 0;
+		for (int i = 0; i < num_threads; ++i) {
+			total_avg += averages[i];
+		}
+
+		
+		threads.clear();
+		for (int i = 0; i < num_threads; ++i) {
+			int partition_size = p_indices[i + 1] - p_indices[i];
+			auto computeVar = std::bind(computeVarFactor, data + p_indices[i], partition_size, total_items, total_avg, std::ref(variances[i]));
+			threads.emplace_back(computeVar);
+		}
+
+		for (auto& t : threads) {
+			t.join();
+		}
+
+		
+		total_var = 0;
+		for (int i = 0; i < num_threads; ++i) {
+			total_var += variances[i];
+		}
+
+		
+		std::ofstream file(target_file, std::ios::binary);
+		if (!file) {
+			throw std::runtime_error("Unable to open target file for writing.");
+		}
+
+		file.write(reinterpret_cast<char*>(&total_items), sizeof(total_items));
+		file.write(reinterpret_cast<char*>(data), sizeof(int) * total_items);
+		if (!file) {
+			throw std::runtime_error("Error occurred while writing to file.");
+		}
+
+		return 1;
+	}
 
 
 

@@ -22,7 +22,7 @@ namespace sdds {
 		double* variances{ nullptr }; // to hold variance factors
 		int* p_indices{ nullptr }; // to hold partitioning indices
 	public:
-		ProcessData(const std::string& input_file, int n_threads = 0);
+		ProcessData(const std::string& input_file, int n_threads);
 		ProcessData(const ProcessData&) = delete;
 		ProcessData& operator=(const ProcessData&) = delete;
 		~ProcessData();
