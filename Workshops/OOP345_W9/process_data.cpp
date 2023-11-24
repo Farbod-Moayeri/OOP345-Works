@@ -53,15 +53,16 @@ namespace sdds
 		//         memory for "data".
 		//       The file is binary and has the format described in the specs.
 
-		std::fstream file(filename, std::ios::in|std::ios::binary);
+
+		std::ifstream file(filename, std::ios::binary);
 
 		if (file)
 		{
-			file.read((char*) total_items, sizeof(int));
+			file.read(reinterpret_cast<char*>(&total_items), sizeof(int));
 
 			data = new int[total_items];
 
-			file.read((char*)data, sizeof(int) * total_items);
+			file.read(reinterpret_cast<char*>(data), sizeof(int) * total_items);
 		}
 
 
@@ -74,13 +75,13 @@ namespace sdds
 
 		// Following statements initialize the variables added for multi-threaded 
 		//   computation
-		num_threads = n_threads; 
+		/*num_threads = n_threads; 
 		averages = new double[num_threads] {};
 		variances = new double[num_threads] {};
 		p_indices = new int[num_threads+1] {};
 		for (int i = 0; i < num_threads; i++)
 			p_indices[i] = i * (total_items / num_threads);
-		p_indices[num_threads] = total_items;
+		p_indices[num_threads] = total_items;*/
 	}
 	ProcessData::~ProcessData() {
 		delete[] data;
@@ -102,13 +103,13 @@ namespace sdds
 			computeVarFactor(data, total_items, total_items, avg, var);
 		}
 
-		std::fstream file(target_file, std::ios::out|std::ios::binary);
+		std::ofstream file(target_file, std::ios::binary);
 
 		if (file)
 		{
-			file.write((char*)total_items, sizeof(int));
+			file.write(reinterpret_cast<char*>(&total_items), sizeof(int));
 
-			file.write((char*)data, sizeof(int) * total_items);
+			file.write(reinterpret_cast<char*>(data), sizeof(int) * total_items);
 
 		}
 		else
@@ -117,6 +118,8 @@ namespace sdds
 		}
 
 		file.close();
+
+		return 1;
 	}
 
 	// TODO Improve operator() function from part-1 for multi-threaded operation. Enhance the  
