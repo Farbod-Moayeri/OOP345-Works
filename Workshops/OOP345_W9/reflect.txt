@@ -1,10 +1,10 @@
 ///////////////////////////////////////////////////////
-//                  WorkShop 8 - Part 2
+//                  WorkShop 9 - Part 2
 // Name: Farbod Moayeri
 // Id: 134395227
 // Email: fmoayeri2@myseneca.ca
 // Section: NFF
-// Date: 2023-11-19
+// Date: 2023-11-25
 ///////////////////////////////////////////////////////
 // I have done all the coding by myself and only copied
 // the code that my professor provided to complete my 
@@ -12,89 +12,77 @@
 ///////////////////////////////////////////////////////
 
 
-Q. the advantage that smart pointer syntax provides. Use example from your code to support your explanation.
+
+Q. In your reflection, include discussion on your observation of the computation times with three different values of the above parameters, and the number of threads used to do the calculations.
+
+	When I ran those three different sleep_for functions, it increased how long it took to compute the average and variance on one thread but for each thread that was added, the amount of time it took to calculate those things
+	decreased. I also noticed that without that command in the computeAvg and computeVar functions, the more threads that were added, the longer it took to compute. This brought me to the conclusion that perhaps using multiple
+	threads is not the best solution if one thread can easily complete the workload and multiple thread manigment only increases the time computation takes rather than decreasing it.
+Q. was there any benefit from using binary files in this workshop?
+
+		yes, there was benefit from using binary files in the workshop. Firstly, binary files are more compact and they allow for faster reading and writing since the data doesnt need to be
+	converted in any way. It is also easier logically to read from them as shown from the code below.
+
+	It was incredibly easy to read from the file as long as I knew the order in which to read the information. The first four bytes were for the total items stored in the file and the
+	rest of the data stored in the file was for each element of the array that is created by using total_items as the size of it.
 
 
-The advantage that smart pointer syntax provides is that you do not have the responsibility to clean up the heap memory, and therefore
-cannot have a memory leak as easily as when you use raw pointers.
+std::ifstream file(filename, std::ios::binary);
 
-DataBase<Profile> excludeSmart(const DataBase<Profile>& allProfiles, const DataBase<Profile>& bannedProfiles) {
-		
-		
+	if (file)
+	{
+		file.read(reinterpret_cast<char*>(&total_items), sizeof(int));
 
-		DataBase<Profile> result;
-		bool skip = false;
+		data = new int[total_items];
 
-		for (auto i = 0u; i < allProfiles.size(); i++)
-		{
-			skip = false;
-
-			for (auto j = 0u; j < bannedProfiles.size(); j++)
-			{
-				if ((allProfiles[i].m_age == bannedProfiles[j].m_age) && (allProfiles[i].m_name.first_name == bannedProfiles[j].m_name.first_name) && (allProfiles[i].m_name.last_name == bannedProfiles[j].m_name.last_name))
-				{
-					skip = true;
-					break;
-				}
-
-			}
-
-			if (!skip)
-			{
-
-				std::shared_ptr<Profile> temp(new Profile(allProfiles[i].m_name, allProfiles[i].m_address, allProfiles[i].m_age));
-
-				try {
-					temp->validateAddress();
-				}
-				catch (const std::string& e)
-				{
-					
-					throw e;
-				}
-
-				result += temp;
-
-			}
-		}
-
-
-		return result;
-		
+		file.read(reinterpret_cast<char*>(data), sizeof(int) * total_items);
 	}
 
-As you can see here, when I create a share_ptr and it overwrites a previous shared_ptr, I do not need to worry about deallocating the resource. I dont need
-to delete it. I dont set it to nullptr here because it would be redundant as it is being freed anyway when it is overwritten.
 
-Q. the difference between raw and smart pointer syntax in your solution.
+	file.close();
+Q. why would be important to bind a function to its arguments, and how was it useful in this workshop?
 
-The difference is that for the raw pointer solution, I create a Profile pointer and allocate memory from the heap to it. And I am also responsible for
-deallocating it.
+		It is important because it is used to create a function object which can be invoked later by our threads. Basically it allows us to create a job for our threads to later do. It was useful
+	in this workshop because we used std::bind to create function objects then gave the function objects with their arguments to each thread using emplace_back(). 
 
-Profile *temp = new Profile(allProfiles[i].m_name, allProfiles[i].m_address, allProfiles[i].m_age);
+	
+	First I created a function object using std::bind which bound the computeAvgFactor function with total_items as one of its parameters. The other parameters need arguments
+	provided to them for the function object to be able to be invoked. Then I used a for loop to loop through the the threads and feed them with different arguments. This is why
+	std::bind was useful for this workshop, it allows me to build different versions of the computeAvg function object by feeding it different arguments and then hand those
+	function objects off to each thread to execute.
 
-For the smart pointer solution, I create a shared pointer of type Profile and I allocate a Profile to it. I use a shared pointer because the object that is
-stored within it is meant for shared ownership, it will not be unique. And I couldnt pass a unique pointer in the parameter of the += operator because
-Unique pointers have their copy constructor and assignment deleted, they are not meant to be copied in any way.
+	std::vector<std::thread> threads;
+	std::vector<double> temp(num_threads, 0.0);
 
-Q. look at the output when the profiles are excluded using raw/smart pointers: the objects are duplicated a lot of times 
-(e.g., the object with ID 176 is duplicated into object 177; then object 177 is duplicated into object 180 and 177 gets deleted; 
-object 180 is duplicated into 183 and then is deleted, etc.). Explain why so many copies are created!
+	int partition_size{};
 
-Hint Put a breakpoint into function(s) exclude... and follow the execution of your code line by line. 
-Check when the messages come into the output, and what operations trigger making so many copies.
-How would you redesign the application to reduce the number of copies that are made?
+	auto computeAvg = std::bind(computeAvgFactor, std::placeholders::_1, std::placeholders::_2, total_items, std::placeholders::_3);
 
-So many copies are made because the vector that stores everything has to resize itself. And when it resizes itself, it has to copy its existing stored objects
-to resize itself. Thats why there are so many copies. I would redesign the application such that the vector holds pointers to objects so the id of the objects
-wouldnt keep incrementing as new objects are not made and then copied, the pointers to them are. It is also much less resource intensive for the vector to
-handle pointer copying rather than object copying.
+	for (int i = 0; i < num_threads; ++i) {
+		partition_size = p_indices[i + 1] - p_indices[i];
 
-Q. The class Profile doesn't provide an explicit move constructor. 
-What happens if in the DataBase you add objects into the collection attribute using std:move()? 
-Do an experiment and report your findings.
+		threads.emplace_back(computeAvg, data + p_indices[i], partition_size, std::ref(temp[i]));
+		total_avg += temp[i];
+	}
 
-It seems to operate like a copy constructor instead. The resources of the Profile is not moved, it is instead copied. I assume this happens because Profile
-has multiple resources that do not have copy constructors and that the compilor would only be able to properly move the resources of an object if all of those
-resources have a move constructor defined.
+	for (auto& t : threads) {
+		t.join();
+	}
+		
+	total_avg = 0.0;
+
+	for (const auto& avg : temp)
+	{
+		total_avg += avg;
+	}
+		
+	
+Q. the advantages of using multiple threads, and how did you accomplish multi-threading in this workshop?
+
+		The advantages of using multiple threads is that they can be used to break down one massive task into a bunch of little ones, thereby completing the big task faster. Another
+	advantage is that for applications that have a UI, it allows you to complete tasks in the background instead of freezing the UI to complete the task on the same thread as the UI.
+
+	Multithreading was accomplished in this workshop by creating a vector of the type thread, then creating a new thread and feeding it a function object to execute. Once all threads
+	had been supplied with the resource they were going to work with, they were join()'ed one by one (garenteed executed) and the parameter that was fed to them was cycled through to
+	get the total_avg or total_var.
 
