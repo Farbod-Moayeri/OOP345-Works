@@ -1,5 +1,7 @@
 #include <fstream>
+#include <algorithm>
 #include "LineManager.h"
+
 
 namespace sdds {
 	LineManager::LineManager(const std::string& file, const std::vector<Workstation*>& stations)
@@ -11,7 +13,8 @@ namespace sdds {
 			Utilities ut;
 			std::string line, firstToken, secondToken;
 			size_t next{ 0 };
-			Workstation* firstStation, secondStation;
+			Workstation* firstStation{};
+			Workstation* secondStation{};
 			bool more{ true };
 
 			ut.setDelimiter('|');
@@ -42,12 +45,12 @@ namespace sdds {
 
 					if (firstStation)
 					{
-						auto first = std::find(m_activeLine.begin(), m_activeLine.end(), firstStation);
+						//auto first = std::find(m_activeLine.begin(), m_activeLine.end(), firstStation);
 
-						if (first == m_activeLine.end())
+						/*if (first == m_activeLine.end())
 						{
 							m_activeLine.push_back(firstStation);
-						}
+						}*/
 					}
 				}
 
@@ -56,20 +59,72 @@ namespace sdds {
 					secondStation = *std::find_if(stations.begin(), stations.end(), [&secondToken](Workstation* current) {
 						return current->getItemName() == secondToken;
 						});
+
+					//m_activeLine.push_back(secondStation);
+
+					if (firstStation != nullptr && secondStation != nullptr)
+					{
+						firstStation->setNextStation(secondStation);
+					}
+
+					//m_activeLine.back()->setNextStation(secondStation);
+					
+				}
+
+				if (firstStation)
+				{
+					m_activeLine.push_back(firstStation);
 				}
 
 				
 
-
-
-
 				firstStation = nullptr;
 				secondStation = nullptr;
-
+				firstToken.clear();
+				secondToken.clear();
 
 			}
 			
-			
+			m_firstStation = m_activeLine.front();
+		}
+	}
+	void LineManager::reorderStations()
+	{
+		std::vector<Workstation*> sorted;
+		Workstation* current = m_firstStation;
+
+		while (current != nullptr) {
+			sorted.push_back(current);
+			current = current->getNextStation();
+		}
+
+		m_activeLine = std::move(sorted);
+	}
+
+	bool LineManager::run(std::ostream& os) {
+		static size_t iteration = 0;
+		os << "Line Manager Iteration: " << ++iteration << std::endl;
+
+		if (!g_pending.empty()) {
+			*m_firstStation += std::move(g_pending.front());
+			g_pending.pop_front();
+		}
+
+		for (auto& station : m_activeLine) {
+			station->fill(os);
+		}
+
+		for (auto& station : m_activeLine) {
+			station->attemptToMoveOrder();
+		}
+
+		return std::all_of(m_activeLine.begin(), m_activeLine.end(),
+			[](const Workstation* ws) { return ws->getQuantity() == 0; });
+	}
+
+	void LineManager::display(std::ostream& os) const {
+		for (const auto& station : m_activeLine) {
+			station->display(os);
 		}
 	}
 }
