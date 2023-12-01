@@ -22,6 +22,7 @@ namespace sdds {
 			
 			while (openFile.good())
 			{
+				next = 0;
 				std::getline(openFile, line, '\n');
 					
 				try {
@@ -86,6 +87,7 @@ namespace sdds {
 			}
 			
 			m_firstStation = m_activeLine.front();
+			m_cntCustomerOrder = g_pending.size();
 		}
 	}
 	void LineManager::reorderStations()

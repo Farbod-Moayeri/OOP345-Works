@@ -1,6 +1,11 @@
 #include "Workstation.h"
 
 namespace sdds {
+
+	std::deque<CustomerOrder> g_pending;
+	std::deque<CustomerOrder> g_completed;
+	std::deque<CustomerOrder> g_incomplete;
+
 	Workstation::Workstation(const std::string& str) : Station(str)
 	{
 
