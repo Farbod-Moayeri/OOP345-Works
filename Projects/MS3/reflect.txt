@@ -1,0 +1,52 @@
+// Name: Farbod Moayeri
+// Seneca Student ID: 134395227
+// Seneca email: fmoayeri2@myseneca.ca
+// Date of completion: 2023/12/02
+//
+// I confirm that I am the only author of this file
+//   and the content was created entirely by me.
+
+
+
+	The biggest issues I ran into for this milestone was fully understanding the interaction between a WorkStation and a CustomerOrder. Once I understood how they interacted, the fact that urked me most was this.
+Why is the LineManager designed to push through multiple orders at once through the chain of stations rather than having one order flow through the entire chain of stations before the next one is fed into it.
+It made it very difficult to debug as there were multiple orders in different parts of the station chain at once. I also think its bad design to have multiple orders be on the chain at once. Maybe if there was some sort
+of multithreading introduced for this assignment, then it would be fine to have multiple orders in the chain.
+
+	Another thing that annoyed me and gave me trouble was the attemptToMoveOrder method.
+
+bool Workstation::attemptToMoveOrder() {
+bool moved = false;
+
+if (!m_orders.empty()) {
+			
+	if (!m_orders.front().containsItem(Station::getItemName()) || (m_orders.front().containsItem(Station::getItemName()) && m_orders.front().isItemFilled(Station::getItemName())) || Station::getQuantity() < 1) {
+		if (!m_pNextStation) {
+					
+			if (m_orders.front().isOrderFilled()) {
+				g_completed.push_back(std::move(m_orders.front()));
+			}
+			else {
+				g_incomplete.push_back(std::move(m_orders.front()));
+			}
+				moved = true;
+			}
+			else {
+				*m_pNextStation += std::move(m_orders.front());
+				moved = true;
+			}
+			m_orders.pop_front();
+		}
+	}
+	return moved;
+}
+
+	That second if condition made me pull my hair out a bit. Remove just one of those conditions and everything breaks in a way that if you were to try to debug it and you didnt know what was wrong,
+you would time. Too much time. Having to understand that you have to check if the item is contained within the station AND that the item has to be filled is not exactly common sense. Not when you are in
+the midst of trying to understand multiple things at once.
+
+	This is my biggest complaint however. Why does this assignment only have three milestones? For OOP244, there was five. It kept you engaged in the assignment and you actually remembered what was going on
+on the last milestone. For this project, I was completely lost once I got to milestone 3. Why cant the Project have more milestones and content? Hell, just scrap like half of the workshops and have the content of the
+workshops be in the actual project. 
+
+

@@ -31,6 +31,7 @@ namespace sdds {
 
 		static size_t m_widthField;
 
+		size_t getOrderCount(const std::string item) const;
 		Item* getItemNotFilled(const std::string& itemName);
 
 	public:
@@ -51,7 +52,7 @@ namespace sdds {
 		void display(std::ostream& os) const;
 
 		bool containsItem(const std::string& itemName) const;
-
+		
 
 	};
 }

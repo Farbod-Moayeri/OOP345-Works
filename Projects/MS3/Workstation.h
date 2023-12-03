@@ -1,3 +1,11 @@
+// Name: Farbod Moayeri
+// Seneca Student ID: 134395227
+// Seneca email: fmoayeri2@myseneca.ca
+// Date of completion: 2023/12/02
+//
+// I confirm that I am the only author of this file
+//   and the content was created entirely by me.
+
 #ifndef SDDS_WORKSTATION_H
 #define SDDS_WORKSTATION_H
 
@@ -17,7 +25,7 @@ namespace sdds {
     class Workstation : public Station {
         std::deque<CustomerOrder> m_orders{};
         Workstation* m_pNextStation{};
-
+        
     public:
         Workstation(const std::string& str);
 
@@ -31,8 +39,11 @@ namespace sdds {
         Workstation& operator=(const Workstation& inc) = delete; 
         Workstation(Workstation&& inc) = delete;                 
         Workstation& operator=(Workstation&& inc) = delete;      
+        virtual ~Workstation() = default;
 
+        size_t getOrderSize() const;
         Workstation& operator+=(CustomerOrder&& newOrder);
+        
     };
 
 }

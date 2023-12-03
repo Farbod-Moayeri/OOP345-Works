@@ -1,7 +1,7 @@
 // Name: Farbod Moayeri
 // Seneca Student ID: 134395227
 // Seneca email: fmoayeri2@myseneca.ca
-// Date of completion: 2023/11/17
+// Date of completion: 2023/12/02
 //
 // I confirm that I am the only author of this file
 //   and the content was created entirely by me.
@@ -57,7 +57,7 @@ namespace sdds {
     }
 
     void Station::display(std::ostream& os, bool full) const {
-        os << std::setw(3) << std::setfill('0') << m_id << " | ";
+        os << std::right << std::setw(3) << std::setfill('0') << m_id << " | ";
         os << std::setw(m_widthField) << std::setfill(' ') << std::left << m_itemName << std::right << " | ";
         os << std::setw(6) << std::setfill('0') << m_serialNumber << " | ";
 
